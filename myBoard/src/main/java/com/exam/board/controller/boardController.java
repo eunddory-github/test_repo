@@ -40,7 +40,7 @@ public class boardController {
 	
 	@Autowired
 	private boardSerivce service;
-	
+	 
 	/*************************************
 	 * 게시판 목록 리스트 불러오기 
 	 *************************************/ 
