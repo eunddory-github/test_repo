@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--  id 는 매퍼인터페이스와 xml 파일 매칭을 위해, mapper의 '메소드명'  과 동일하게 작성  -->
+<!-- boardMapper interface 경로 -->
+<mapper namespace = "com.exam.board.mapper.boardMapper">
+
+<!-- 
+<select id="list" resultType="qna.QnaVO">
+		SELECT *
+		FROM (SELECT ROWNUM no, q.*, (SELECT name FROM member m WHERE m.id = writer) name
+			FROM (SELECT * FROM qna <include refid="search_where" /> ORDER BY root, step DESC) q
+			ORDER BY no DESC) q
+		WHERE no BETWEEN #{beginList } and #{endList }
+	</select>
+ -->
+
+
+<!-- 게시글 리스트 -->
+<select id="getAllList" resultType="hashmap">
+	SELECT 
+		   id,
+           title,
+           content,
+           viewCnt,
+           writer,
+           grp_no,
+           grp_ord,
+           dep, 
+           DATE_FORMAT(regdate, '%Y-%m-%d %H:%i:%s') AS regdate
+	FROM
+		testBoard
+	ORDER BY
+		grp_no DESC, grp_ord ASC;
+		
+</select>
+
+
+<!-- 상세조회 -->
+ <select id="detailBoard" resultType="com.exam.board.entity.Board"> 
+       SELECT
+            id,
+            title,
+            content,
+            viewCnt,
+            writer,
+            grp_no,
+            grp_ord,
+            dep,
+            DATE_FORMAT(regdate, '%Y-%m-%d %H:%i:%s') AS regdate
+        FROM
+            testBoard
+        WHERE
+            id = #{id};
+</select>
+
+
+<!-- 신규 게시글 등록 -->
+<!-- INSERT 됨과 동시에 생성된 키를 가져오게 하는 useGeneratedKeys 속성이용   -->
+<insert id="insertPost" parameterType="com.exam.board.entity.Board" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+	 <![CDATA[
+	INSERT INTO testBoard
+			(id
+			,title
+			,content
+			,writer
+			,grp_ord
+			,dep
+			,viewCnt
+			,regdate
+			,grp_no
+			)
+    VALUES(
+    	(SELECT id FROM (SELECT max(id)+1 as id FROM testBoard) A) 
+		,#{title}
+		,#{content}
+		,#{writer}
+		,0
+		,1
+		,0
+		,sysdate()
+		,(SELECT id FROM (SELECT max(id)+1 as id FROM testBoard) B) 
+	);	 
+	]]>
+</insert>
+
+<!--  게시글 수정  -->
+<update id="editPost" parameterType="com.exam.board.entity.Board">
+	UPDATE 
+		testBoard
+	SET 
+		title = #{title}
+		,content = #{content}
+		,writer = #{writer}
+		,regdate  = sysdate()
+	WHERE 
+		id = #{id}	
+</update>
+
+<!-- 원글의 grp_ord 보다 더 큰 grp_ord 가 있으면 그 글의 grp_ord 을 먼저 +1 증가  --> 
+<update id="replyInsert_1" parameterType="com.exam.board.entity.Board">
+	<![CDATA[
+	UPDATE 
+		testBoard
+	SET 
+		grp_ord = grp_ord+1 ,dep = dep+1
+	WHERE
+		grp_no = #{grp_no} AND dep > ${dep};
+	]]>
+</update>
+
+<!-- 답글 등록 -->
+<insert id="replyInsert_2" parameterType="com.exam.board.entity.Board" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+	 <![CDATA[
+	INSERT INTO testBoard
+			(id
+			,title
+			,content
+			,writer
+			,grp_ord
+			,dep
+			,viewCnt
+			,regdate
+			,grp_no
+			)
+    VALUES(
+    	 (SELECT id FROM (SELECT max(id)+1 as id FROM testBoard) A) 
+		,#{title}
+		,#{content}
+		,#{writer}
+		,#{grp_ord}
+		,#{dep}
+		,0
+		,sysdate()
+		,#{grp_no}
+	);	 
+	]]>
+</insert>
+
+
+
+<!-- 자식글까지 모두 삭제 -->
+<delete id="deleteBoard" parameterType="Integer">
+	 <![CDATA[
+	DELETE FROM 
+		testBoard
+	WHERE id IN 
+		(SELECT * FROM (SELECT
+							id 
+						FROM
+							testBoard
+						WHERE grp_no = ${id}
+						)
+			AS grp_no
+		);
+	]]> 
+</delete>
+
+<!-- 검색기능 -->
+<select id="searchBoard" parameterType="hashmap" resultType="hashmap">
+
+	SELECT * 
+	FROM testBoard
+ 	<if test="searchType.equals('title')">
+ 		WHERE title LIKE CONCAT('%', #{keyword}, '%')	
+ 	</if>
+	<if test="searchType.equals('content')">
+ 		WHERE content LIKE CONCAT('%', #{keyword}, '%')	
+ 	</if>
+ 	<if test="searchType.equals('writer')">
+ 		WHERE writer LIKE CONCAT('%', #{keyword}, '%')	
+ 	</if>
+	ORDER BY
+		 grp_no DESC, grp_ord ASC;
+</select>
+
+<!-- 총 게시물 수  -->
+<select id="totalCnt" resultType="Integer">
+		SELECT COUNT(*) FROM testBoard; 
+</select>
+
+
+
+</mapper>
+
+ 

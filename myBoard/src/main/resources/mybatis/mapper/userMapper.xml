@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--  id 는 매퍼인터페이스와 xml 파일 매칭을 위해, mapper의 '메소드명'  과 동일하게 작성  -->
+<!-- boardMapper interface 경로 -->
+<mapper namespace = "com.exam.user.mapper.userMapper">
+
+<!-- 회원가입 -->
+<insert id="joinMember" parameterType="com.exam.user.entity.User" useGeneratedKeys="true" keyColumn="id" keyProperty="id" > 
+  <![CDATA[
+	INSERT
+	  INTO user ( id
+	  			 , userName
+	  			 , PassWord
+	  			 , email
+	  			 , creatDt
+	  			 , gender
+	  			 , phoneNumber
+	)
+	VALUES(
+	    	 #{id}
+			,#{userName}
+			,#{PassWord}
+			,#{email}
+			,sysdate()
+			,#{gender}
+			,#{phoneNumber}
+	);
+	]]>
+</insert> 
+
+<!-- 회원조회  -->
+<select id="isMember" parameterType="hashmap" resultType="com.exam.user.entity.User">
+	SELECT * 
+	  FROM user
+	 WHERE 
+	    id = #{id}
+</select>
+
+<!-- 회원정보 수정  -->
+<update id="modifyMem" parameterType="com.exam.user.entity.User" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+	
+	UPDATE user 
+	   SET userName = #{userName}, 
+	   	   	  email = #{email},
+	   		 gender = #{gender},
+	    phoneNumber = #{phoneNumber}
+	 WHERE 
+	 	id =  #{id}
+
+</update>
+<delete id="deleteUser" parameterType="hashmap">
+	
+	DELETE 
+	  FROM user
+	 WHERE id = #{id};
+
+</delete>
+<!--  비밀번호 변경 -->
+<update id="changePW" parameterType="hashmap" >
+	
+	UPDATE user 
+	   SET PassWord = #{PassWord}
+	 WHERE 
+	 	id =  #{id}
+</update>
+
+
+
+
+
+
+</mapper>
