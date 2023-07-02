@@ -44,7 +44,7 @@ public class boardController {
 	/*************************************
 	 * 게시판 목록 리스트 불러오기 
 	 *************************************/ 
-
+ 
 	@RequestMapping("/list") 
 	public  ModelAndView getboardList() {
 		
