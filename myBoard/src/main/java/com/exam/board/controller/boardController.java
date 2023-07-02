@@ -45,7 +45,7 @@ public class boardController {
 	 * 게시판 목록 리스트 불러오기 
 	 *************************************/ 
 
-	@RequestMapping("/list")
+	@RequestMapping("/list") 
 	public  ModelAndView getboardList() {
 		
 		int totalCnt = service.totalCnt();
