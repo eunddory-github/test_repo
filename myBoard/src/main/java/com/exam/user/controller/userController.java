@@ -1,6 +1,7 @@
 package com.exam.user.controller;
 
 import java.net.http.HttpRequest;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +9,7 @@ import javax.servlet.http.HttpSession;
 import javax.websocket.server.PathParam;
 
 import com.exam.board.controller.boardController;
+import com.exam.board.entity.Board;
 import com.exam.board.service.boardSerivce;
 
 import org.apache.logging.log4j.Logger;
@@ -53,6 +55,9 @@ public class userController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;	
 
+	@Autowired
+	private boardSerivce boardSvc;
+	
 	ModelAndView mnv = new ModelAndView();
 
 	/***************************************
@@ -83,10 +88,12 @@ public class userController {
 			mnv.addObject("loginDTO", "");
 		}
 		User loginUserDto = service.isMember(sesseionId); 
-		mnv.addObject("loginDTO", loginUserDto); 
+		
+		mnv.addObject("loginDTO", loginUserDto); 				 	// 회원 정보
+		mnv.addObject("List", boardSvc.myboard(sesseionId));		// 내 게시글 불러오기
 		mnv.setViewName("user/myPage");
+		
 		return mnv;
-	
 	}
 	
 	 
@@ -103,37 +110,32 @@ public class userController {
 	/*************************************** 
 	 * 로그인 요청
 	 ***************************************/
-	@ResponseBody
-	@PostMapping("/reqLogin")
-	public ModelAndView reqLogin(@RequestBody Map<String, Object> params 
-							,HttpServletRequest request, Model model) {
+	@ResponseBody  
+	@PostMapping(value= {"/reqLogin"}, produces = {"application/json"})
+	public User reqLogin(@RequestBody Map<String, Object> params 
+							,HttpServletRequest request) throws NullPointerException {
 		
 		String id = (String)params.get("id");   
 		String pw = (String)params.get("PassWord"); 
 		
-		ModelAndView mv = new ModelAndView();
 		User userDto = service.isMember(id);	// 회원조회 
-		/*
 		if(userDto == null) {	
+			return userDto;
 		}else if(!passwordEncoder.matches(pw, userDto.getPassWord())){  
 			userDto = null; 
+			return userDto;
 		}else{
-		*/
-			System.out.println("로그인 요청");
 			HttpSession session = request.getSession(); 
-			session.setAttribute("loginUser", userDto.getId()); 
+			session.setAttribute("loginUser", userDto.getId());
+			session.setAttribute("loginUserInfo", userDto);
+
 			session.setMaxInactiveInterval(30*60);
 
-			String userSession =  (String)session.getAttribute("loginUser"); 
-			System.out.println("로그인 완료된 user id : " + userSession);
-			model.addAttribute("result", "00000");
-			mv.setViewName("board/list");
-			mv.addObject("resultCode", "0000");
-			mv.addObject("loginUser", userSession);
+			User login_user = (User)session.getAttribute("loginUserInfo");
+			System.out.println("로그인 완료된 user id : " + login_user.getId());
 
-		
-	
-		return mv;
+			return userDto; 
+		}
 	}
 	
 	/*****************************************
@@ -194,7 +196,7 @@ public class userController {
 	/*****************************************
 	 * 회원정보 삭제
 	 *******************************************/
-	@PostMapping("/user/deleteUser")
+	@PostMapping("/deleteUser")
 	public int deleteUser(@RequestParam("id") String id, @RequestParam("PassWord") String pw
 								,HttpServletRequest request){
 		String delId 	= id;
@@ -224,7 +226,7 @@ public class userController {
 	/*****************************************
 	 * 비밀번호 불일치 여부 
 	 ******************************************/  
-	@RequestMapping("/user/beforeChk")
+	@RequestMapping("/beforeChk")
 	public boolean isCorrect(@RequestParam("id") String id, @RequestParam("PassWord") String pw){ 
 		boolean result= false;
 		
@@ -241,10 +243,11 @@ public class userController {
 	/*****************************************
 	 * 비밀번호 변경
 	 ******************************************/
-	@PostMapping("/user/changePW")
+	@PostMapping("/changePW")
 	public int changePW(@RequestParam("id") String id, @RequestParam("PassWord") String newPw) {
 		System.out.println("11111111111111");
 		int result = 0;
+		
 		User user = service.isMember(id);
 		
 		String securityPW = passwordEncoder.encode(newPw);  
@@ -255,6 +258,7 @@ public class userController {
 			if(result == 0) {
 				 mnv.setViewName("errorPage");
 			}
+			System.out.println(result);
 			return result;
 		}catch(Exception e){
 			e.printStackTrace();

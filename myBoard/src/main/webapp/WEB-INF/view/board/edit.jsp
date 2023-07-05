@@ -1,41 +1,156 @@
 
+<%@page import="org.springframework.ui.Model"%>
+<%@page import="java.util.Map"%>
+<%@page import="org.springframework.web.servlet.ModelAndView"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+
+<!--  jsp template 사용해서 헤더 푸더 빼놓기  -->
+<head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<style>
+  table {
+    border-bottom :  bottom;
+  }
+  
+  table td {
+    padding: 10px;
+  }
+
+</style>
+
+<% 
+	
+	String loginUser = (String)session.getAttribute("loginUser"); // 로그인 되어있는 아이디
+	
+%>
+<script type="text/javascript">
+function go_back(){
+	var board_id = $("#hd_id").val();
+	location.href = "/board/detail?id=" + board_id;
+}
+//입력값 유효성 체크
+function  validateCheck(){
+
+	var title	 =  $("#inp_title").val();
+	var content  =	$("#inp_content").val();
+	var writer =  $("#inp_writer").val();
+	var regex = /^[가-힣]+$/; 
+		
+	if(""==title || ""==content || ""==writer){
+		alert("입력란을 모두 채워주세요.");
+		return;
+	}
+	if(!regex.test(writer) || 5 < writer.length){
+		alert("이름은 5자 이하로 한글만 가능합니다.");
+		return;
+	}
+	if( 300 < content.length ){
+		alert("내용은 300자 이하로 가능합니다.");
+		return;
+	}
+	if( 50 < title.length ){
+		alert("제목은 50자 이하로 가능합니다.");
+		return;
+	}
+	return true; 
+}
+
+// 게시글 수정동작 
+function editBoard(){
+	
+	//입력값 체크
+	if(!validateCheck()){ 	
+		return;
+	}
+	if(!confirm('게시글을 수정할까요?')){
+		return;
+	}
+
+	var sendData = {};
+	sendData.writer		= $("#inp_writer").val();
+	sendData.title  	= $("#inp_title").val();
+	sendData.content 	= $("#inp_content").val();
+	sendData.id 		= $("#hd_id").val();
+	
+	alert("보낼 data : "+ JSON.stringify(sendData));
+	 $.ajax({
+	      url: "/board/edit",
+	      method: "POST",
+	      data: JSON.stringify(sendData),
+	      contentType: 'application/json',
+	      success: function(res) {
+				var result = res;
+				if(result > 0){
+					alert("게시글 수정완료!");
+					location.href = "/board/detail?id=" + sendData.id;
+				}
+	      }, 
+	      error: function(xhr, status, error) {
+	        console.log("오류가 발생했습니다. 잠시 후 다시 시도해주세요. " + error);
+	      }
+	});
+}
 
 
- <h1><strong>${board.id}</strong> 번 게시글 수정</h1>
-    <form action="rePost" method="POST" role="form">
-   		<table class="table table-bordered"> 
-   			<tr>
-   				<td style="width: 20%"><label for="title">제목</label>
-   				<td style="width: 80%">
-   					<input type="text" name="title" maxlength="20" required>
-   				</td>
-   			</tr>
-   			 <tr>
-   				<td style="width: 20%"><label for="writer">작성자</label>
-   				<td style="width: 80%">
-   					<input type="text" name="writer" maxlength="10" required>
-   				</td>
-   			</tr>
-   			 <tr>
-   				<label for="content">
-	   				<td style="width: 20%">내용
-	   				<td style="width: 80%">
-	   					<textarea name="content" rows="5" required placeholder="내용을 작성해주세요." ></textarea>
-	   				</td>
-   			   	</label>	
-   			</tr>
-   			 <tr>
-   				<td style="width: 20%"><label for="file">첨부파일</label>
-   				<td style="width: 80%">
-   					<input type="file" name="file">
-   				</td>
-   			</tr>
-   		</table>
-        <p>
-        	<input type="submit" value="등록">
-        </p>
-    </form>
-    <br>
-    <a href="/">목록으로 돌아가기</a>		
+
+</script>
+
+<div class="container-fluid"> 
+	<div class="row mt-4"></div>
+</div>
+   <table  style="padding-top: 50px" align="center" width="700" border="0" cellpadding="2">
+      <tr>
+     	 <td height=20 align= center bgcolor=#ccc>
+     	 	<font color=white>게시글 수정하기</font>
+     	 </td>
+      </tr>
+      <td bgcolor=white>
+      <table class = "table2"> 
+      <input type="hidden" id="hd_id" value="${boardDTO.id}" />
+			<tr>
+				<td>카테고리</td>
+				<td>
+					<input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+					<label class="form-check-label" for="flexRadioDefault2"> 자유게시판 </label>
+				</td>
+			</tr>
+			<tr>
+				<td>작성자</td>
+				<td>
+					<input type="text" name="writer" id="inp_writer"  placeholder="작성자" value="${boardDTO.writer}">
+				</td>
+			</tr>
+			<tr>
+				<td>제목</td>
+				<td>
+					<input type="text" name="title" id="inp_title" value="${boardDTO.title}" >
+				</td>
+			</tr>
+			<tr>
+				<td>내용</td>
+				<td>
+					<textarea name="content" id ="inp_content" cols=85 rows=15>${boardDTO.content}</textarea>
+				</td>
+			</tr>
+			<tr>
+				<td>파일</td>
+				<td>
+					<input type="file"  name="file" id="inp_file" name="file" multiple="multiple"/ value="${boardDTO.filepath}">
+				</td>
+			</tr>
+		</table>
+		<div class="col-md-3 offset-md-1 text-end">
+    	<button type="submit" class="btn btn-success btn-lg btn-block" onclick="editBoard();">수정완료</button>
+   	 <button class="btn btn-success btn-lg btn-block" onclick="go_back();">돌아가기</button>
+		</div>
+	</td>
+   </table>
+
+
+
+

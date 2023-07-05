@@ -2,6 +2,9 @@ package com.exam.board.service;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import com.exam.board.entity.Board;
@@ -34,4 +37,10 @@ public interface boardSVCinterface {
 	
 	// 검색기능(title,content,writer)
 	List<Board> searchBoard(String searchType, String keyword);
+	
+	// 게시글 조회 수 증가 
+	void add_viewCnt(int id,HttpServletRequest request, HttpServletResponse response);
+
+	// 내 게시글 가져오기
+	List<Board> myboard(String user_fk);
 }

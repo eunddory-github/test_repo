@@ -43,7 +43,6 @@ label.error{
 <% 
 	// 마이페이지에 접근 가능한, 로그인 되어 있는 유저
 	String sessionId = (String)session.getAttribute("loginUser");
-	System.out.println("sessionID :" + sessionId);
 %>
 <script type="text/javascript">
 
@@ -66,7 +65,8 @@ label.error{
 	  $("#delUser").click(function(){	
 		 $("#delUserDiv").show(); 
 		 $("#myUserDiv").hide();
-		 $("#pwDiv").hide(); 
+		 $("#pwDiv").hide();
+		 $("#boardDiv").hide();
 		 ChangeUi();
 	  });
 
@@ -74,18 +74,51 @@ label.error{
 	  $("#myUser").click(function(){	
 		 $("#myUserDiv").show();
 		 $("#delUserDiv").hide(); 
-		 $("#pwDiv").hide(); 
+		 $("#pwDiv").hide();
+		 $("#boardDiv").hide();
 		 ChangeUi();
 	  });
 	  
 	// 비밀번호 변경 탭  
 	  $("#pwUser").click(function(){	
-			 $("#pwDiv").show();
-			 $("#myUserDiv").hide();
-			 $("#delUserDiv").hide(); 
-			 ChangeUi();
-		  });
+		 $("#pwDiv").show();
+		 $("#myUserDiv").hide();
+		 $("#delUserDiv").hide(); 
+		 $("#boardDiv").hide();
+
+		 ChangeUi();
+	  });
+	// 내 게시글 관리 탭
+	$("#myBoard").click(function(){
+		$("#boardDiv").show();
+		$("#pwDiv").hide();
+		$("#myUserDiv").hide(); 
+		$("#delUserDiv").hide(); 
+		
+		ChangeUi();
+	
 	});
+
+
+	// 내 게시글 전체선택 및 해지
+ 	  $("#allChkBtn").click(function() {
+ 		    var isChecked = $(this).prop("checked");
+ 		    
+ 		    if (isChecked) {
+ 		      // 전체 해제
+ 		      $("input[type=checkbox]").each(function(){
+ 		    	  $(this).prop("checked", false);
+ 		      })
+ 		    } else {
+ 		      // 전체 선택
+ 		      $("input[type=checkbox]").each(function(){
+ 		    	  $(this).prop("checked", true);
+ 		      })
+ 		    }
+ 	 });
+
+	
+});
  	
  	
  	function ChangeUi(){
@@ -125,7 +158,7 @@ label.error{
 		$.ajax({	
 		      url: "/user/modifyUser",
 		      method: "POST",
-		      data: JSON.stringify(sendData),
+		      data: JSON.stringify(sendData), 
 		      dataType:  "json",
 		      contentType : "application/json", 
 		      success: function(res) {
@@ -205,15 +238,15 @@ label.error{
 	  });
 	}
 	
-	// 회원삭제 submit 동작
+	// 회원탈퇴 submit 동작
 	function delMember(){
 		
-		if(!$("#CheckDel").prop("checked")){
-			alert("회원탈퇴 동의에 체크해주세요.");
-			return;
-		}
 		if(""==$("#del_pw").val()){
 			alert("비밀번호를 입력해주세요.");
+			return;
+		}
+		if(!$("#CheckDel").prop("checked")){
+			alert("회원탈퇴 동의에 체크해주세요.");
 			return;
 		}
 		var sendData = {
@@ -253,7 +286,6 @@ label.error{
 		sendData.PassWord = $("#inp_changepw").val(); 
 
 		$.ajax({
-			
 		      url: "/user/changePW",
 		      method: "POST",
 		      data: sendData, 
@@ -263,7 +295,7 @@ label.error{
 						alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
 					}
 					 alert('비밀번호 변경이 완료되었습니다!');
-					 location.href ="http://localhost:8080/user/myPage?id=" +sendData.id;
+					 location.href ="http://localhost:9000/user/myPage?id=" +sendData.id;
 		      },
 		      error: function(xhr, status, error) {
 					alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
@@ -278,23 +310,26 @@ label.error{
 		validateCheck.beforepw = false;	
 		validateCheck.newpw = false;		
 		 
-		var bf_pw	 = $("#inp_beforepw").val();	// 현재 비밀번호 
+		var bf_pw	 = $("#inp_beforepw").val();	// 현재 비밀번호  
 		var new_pw = $("#inp_changepw").val();	 	// 변경할 비밀번호 
 		var re_pw  = $("#inp_repw").val();			// 확인 비밀번호 
 		 
 		var RegexPW = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$/; 
 
-	
+		if(""==bf_pw || "" == new_pw || "" == re_pw){
+			 $("#textMsg").text("※ 모두 입력해주세요. ").show().delay(3000).fadeOut();
+			 return;
+		}
 	  	if(!RegexPW.test(new_pw) || !RegexPW.test(re_pw)) {
 			 $("#textMsg").text("※ 비밀번호는 영문자 숫자를 조합하여 8자 이상 20자 이하여야 합니다.").show().delay(3000).fadeOut();
+	  		 return;
 	  	}
-	 
 		 if( new_pw != re_pw){
 			 $("#textMsg").text("※ 새 비밀번호와 확인 비밀번호가 일치하지 않습니다.").show().delay(3000).fadeOut();
+			 return;
 		 }else{
 			  validateCheck.newpw = true;
 		 }
-	
 		 var sendData = {
 				 "id" : $("#hd_id").val(),
 				 "PassWord" : bf_pw
@@ -304,10 +339,10 @@ label.error{
 		      url: "/user/beforeChk",
 		      method: "GET",
 		      data: sendData,
-		      async: false, 	// AJAX 호출을 동기적으로 실행하도록 설정
+		      async: false, 		// AJAX 호출을 동기적으로 실행하도록 설정
 		      success: function(res) {
 					var result = res;
-					if(!result){
+					if(!result){	// 일치하지 않을 경우  res : false 
 						$("#textMsg").text("※ 현재 비밀번호가 일치하지 않습니다.").show().delay(3000).fadeOut();
 						return;
 					}else{
@@ -325,6 +360,45 @@ label.error{
 		  }
 		 return true;
 	}
+	
+	// 내게시글  - 체크한 글 삭제
+	function chkDel_board(){
+		
+		var len = $("#postdiv input[type=checkbox]:checked").length;
+		var chkRow = ""; 	// 삭제할 board id
+	
+		if(len ==0){
+			alert("선택된 글이 없습니다.");
+			return;
+		}
+		if(!confirm("답글이 달린 글까지 모두 삭제됩니다. 삭제 하시겠어요? ")){
+			return;
+		}
+		$("#postdiv input[type=checkbox]:checked").each(function(){
+			 chkRow = chkRow + $(this).val() + ",";
+		});
+		 chkRow =  chkRow.substring(0 , chkRow.lastIndexOf( ",")); // 맨끝 콤마 지움
+
+		$.ajax({
+		      url: "/board/delChkPost",
+		      method: "POST",
+		      data: chkRow,
+		      success: function(res) { 
+					if(res ==  0){
+						alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요. ');
+					}else{  
+						 alert('모두 삭제 완료 되었습니다.'); 
+						 location.href = "/user/myPage?id=" +$("#hd_id").val();
+						 $("#myBoard").trigger('click'); 
+					} 
+					 
+		      },
+		      error: function(xhr, status, error) {
+					alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+		      }
+		});	
+	}
+	
 </script>
 <!-- 네비게이션 -->
 <ul class="nav nav-tabs">
@@ -337,9 +411,10 @@ label.error{
   <li class="nav-item">
     <a class="nav-link" href="#" id="delUser">회원탈퇴</a>
   </li>
-  <li class="nav-item"> 
-    <a class="nav-link" href="/board/list">메인으로</a>
+  <li class="nav-item">
+    <a class="nav-link" href="#" id="myBoard" >내 게시글</a>
   </li>
+
 </ul>
 <!-- 네비게이션 end -->
 <div class="container mt-5 pt-5" id="content-main"> 
@@ -404,7 +479,7 @@ label.error{
                         <input type="email" class="form-control" id="inp_email"
                             name="email" value="${userdto.email}">
                     </div>
-                </div>
+                </div> 
                 <br>
              	<!--  성별 -->
                 <div class="row mb-3 form-row">
@@ -429,7 +504,44 @@ label.error{
                 <hr class="mb-4">
                 <button class="btn btn-success btn-lg btn-block" onclick="modifyUser();" >수정</button>
         </div>
-    </div> 
+     </div>
+        <div class="col-sm-9" id="boardDiv" style="display: none;" > 	<!------------- 내 게시글  Tap ----------------->
+       <h1>내 게시글 관리</h1>
+       <hr>
+       <div class="bg-white rounded shadow-sm container p-3">
+           <button id="allChkBtn" ><i class="bi bi-check-lg" style="color: red;"></i>전체선택</button>
+           <button onclick="chkDel_board();" ><i class="bi bi-trash3-fill"></i>삭제</button><hr>
+           
+           
+           <table class="table table-bordered table-hover">
+			<thead>
+				<tr style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #f78f24; opacity: 0.8">
+					<th colspan="2" style="text-align: center;">글번호</th>
+					<th>제목</th>
+					<th>작성일</th>
+					<th>조회수</th>
+				</tr>
+			</thead>
+				<c:forEach var="board" items="${List}">
+				<tr style="color: #ff52a0;" id="postdiv"><!-- 게시물이 들어갈 공간 -->
+					<td>
+  						<input type="checkbox" value="${board.id}">
+					</td>
+					<td>${board.id}</td> 
+					<td>
+						<a style="margin-top: 0; height: 40px; color: orange;" href="/board/detail?id=${board.id}" >${board.title}</a>
+					</td>
+					<td>
+						${board.regdate}
+					<td>
+						${board.viewCnt}
+					</td>
+				</tr>
+				</c:forEach>
+			</table> <!-- 게시물이 들어갈 공간 -->   
+           <hr class="mb-4">
+   	</div>
+	</div> 
      <div class="col-sm-9" id="delUserDiv" style="display:none;" > 	<!------------- 회원탈퇴 Tap ----------------->
        <h1>회원탈퇴</h1>
        <hr>
@@ -509,6 +621,7 @@ label.error{
        </div>
            <hr class="mb-4">
            <button class="btn btn-success btn-lg btn-block" onclick= "changePW();"  >변경하기</button>
-	   	</div>
+	 </div> 
+	
 </div>
 </div>

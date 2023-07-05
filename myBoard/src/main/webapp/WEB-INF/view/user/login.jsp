@@ -21,7 +21,7 @@
 	}
 	
 	// 로그인 요청
-	function reqLogin(){debugger;
+	function reqLogin(){
 		var inp_id = $("#inp_id").val();
 		var inp_pw = $("#inp_pw").val();
 	
@@ -43,42 +43,15 @@
 		      contentType : "application/json",
 		      success: function(res) {
 					var result = res;
+					alert("로그인 성공!");
+					location.href='/board/list';
 		      },
 		      error: function(xhr, status, error) {
-		        console.log("Ajax 요청 실패: " + error);
+		        console.log("오류가 발생했습니다. 잠시 후 다시 시도해주세요." + error);
 		      }
 		});
 		
-		
-		
-		
-		
-		
-		
-		/*
-		
-		$.ajax({
-		      url: "/user/reqLogin",
-		      method: "POST",
-		      data:  JSON.stringify(sendData),
-		      dataType:  "json",
-		      contentType : "application/json",
-		      success: function(res){
-		     	 alert(JSON.stringify(res));
-		    	   
-				var resultData = JSON.stringify(res);
-					alert("로그인 성공!");
-					location.href="http://localhost:8080/board/list"; 
-		      },
-		      error: function(xhr, status, error) { 
-		    	  alert("333333333333333");
-
-		    	  alert("아이디와 비밀번호를 다시 확인하세요. ");
-		      }  
-		}); 
-		*/
 	}
-	
 </script>
 
 <meta charset="UTF-8">
@@ -106,4 +79,9 @@
       </div>
     </div>
   </div>
+ 
+ 
+ 
+ 
+ 
  

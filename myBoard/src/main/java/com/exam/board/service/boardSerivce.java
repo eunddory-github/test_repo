@@ -2,11 +2,20 @@ package com.exam.board.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.exam.board.entity.Board;
@@ -15,6 +24,9 @@ import com.exam.board.mapper.boardMapper;
 @Service
 public class boardSerivce implements boardSVCinterface {
 
+	
+	//private final Logger logging = (Logger)LoggerFactory.getLogger(this.getClass());
+	
 	@Autowired
 	private boardMapper mapper;
 	
@@ -92,5 +104,45 @@ public class boardSerivce implements boardSVCinterface {
 	@Override
 	public List<Board> searchBoard(String searchType, String keyword) {
 		return mapper.searchBoard(searchType, keyword);
+	} 
+	
+	// 게시글 조회 수 증가
+	@Override
+	public void add_viewCnt(int id, HttpServletRequest request, HttpServletResponse response ) {
+			/*
+		  Cookie[] cookies = request.getCookies();
+	        if(cookies != null) {	// 쿠키o
+	            for (Cookie cookie : cookies) {
+	            	//logging.debug("cookie.getname " + cookie.getName());
+	            	//logging.debug("cookie.getValue " + cookie.getValue());
+
+	                if (!cookie.getValue().contains(request.getParameter("id"))){
+	                    cookie.setValue(cookie.getValue() + "_" + request.getParameter("id"));
+	                    cookie.setMaxAge(60 * 60 * 2);  
+	                    response.addCookie(cookie);
+	                    mapper.add_viewCnt(id); // 증가 
+	                }
+	            }
+	        }else{ // 쿠키 X
+	            Cookie newCookie = new Cookie("visit_cookie", request.getParameter("id"));
+	            newCookie.setMaxAge(60 * 60 * 2);
+	            response.addCookie(newCookie);
+	            mapper.add_viewCnt(id); // 증가 
+	        }
+		} 
+		*/ 
+		
+		mapper.add_viewCnt(id);
+		
+	
 	}
+
+	// 내 게시글 가져오기
+	@Override
+	public List<Board> myboard(String user_fk) {
+		return mapper.myboard(user_fk);
+	}
+	
+	
+	
 }

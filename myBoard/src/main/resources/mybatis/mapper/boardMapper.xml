@@ -47,6 +47,7 @@
             grp_no,
             grp_ord,
             dep,
+           	user_fk,
             DATE_FORMAT(regdate, '%Y-%m-%d %H:%i:%s') AS regdate
         FROM
             testBoard
@@ -69,6 +70,7 @@
 			,viewCnt
 			,regdate
 			,grp_no
+			,user_fk
 			)
     VALUES(
     	(SELECT id FROM (SELECT max(id)+1 as id FROM testBoard) A) 
@@ -79,7 +81,8 @@
 		,1
 		,0
 		,sysdate()
-		,(SELECT id FROM (SELECT max(id)+1 as id FROM testBoard) B) 
+		,(SELECT id FROM (SELECT max(id)+1 as id FROM testBoard) B)
+		,#{user_fk} 
 	);	 
 	]]>
 </insert>
@@ -105,15 +108,17 @@
 	SET 
 		grp_ord = grp_ord+1 ,dep = dep+1
 	WHERE
-		grp_no = #{grp_no} AND dep > ${dep};
+		grp_no = #{grp_no} AND grp_ord > #{grp_ord}; 
 	]]>
 </update>
 
-<!-- 답글 등록 -->
-<insert id="replyInsert_2" parameterType="com.exam.board.entity.Board" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
-	 <![CDATA[
-	INSERT INTO testBoard
-			(id
+
+
+<insert id="replyInsert_2" parameterType="com.exam.board.entity.Board">
+    <!-- 원글의 step보다 더 큰 step을 가진 글이 있다면 그 글들의 step을 먼저 +1 한다. -->
+    <![CDATA[
+    INSERT INTO testBoard (
+    		id
 			,title
 			,content
 			,writer
@@ -122,37 +127,39 @@
 			,viewCnt
 			,regdate
 			,grp_no
+			,user_fk
 			)
-    VALUES(
-    	 (SELECT id FROM (SELECT max(id)+1 as id FROM testBoard) A) 
-		,#{title}
-		,#{content}
-		,#{writer}
-		,#{grp_ord}
-		,#{dep}
-		,0
-		,sysdate()
-		,#{grp_no}
-	);	 
-	]]>
+    VALUES (
+    (SELECT id FROM (SELECT max(id)+1 as id FROM testBoard) A),
+    
+     #{title}
+     , #{content}
+     , #{writer}
+     , #{grp_ord} + 1
+     , #{dep} + 1
+     , 0
+     , sysdate()
+     , #{id}
+     , #{user_fk} 
+    );
+    ]]>
+
 </insert>
 
-
-
-<!-- 자식글까지 모두 삭제 -->
+<!-- 게시글 삭제 (자식글까지 모두 삭제) -->
 <delete id="deleteBoard" parameterType="Integer">
 	 <![CDATA[
 	DELETE FROM 
-		testBoard
-	WHERE id IN 
-		(SELECT * FROM (SELECT
-							id 
-						FROM
-							testBoard
-						WHERE grp_no = ${id}
-						)
-			AS grp_no
-		);
+				testBoard
+		  WHERE 
+		  		id IN
+		 			 ( SELECT * FROM 
+		  					( SELECT id FROM 
+		  									testBoard
+									    WHERE 
+											grp_no = #{id}
+							) AS grp_no
+					  );
 	]]> 
 </delete>
 
@@ -160,7 +167,8 @@
 <select id="searchBoard" parameterType="hashmap" resultType="hashmap">
 
 	SELECT * 
-	FROM testBoard
+	  FROM 
+	  	   testBoard
  	<if test="searchType.equals('title')">
  		WHERE title LIKE CONCAT('%', #{keyword}, '%')	
  	</if>
@@ -178,6 +186,43 @@
 <select id="totalCnt" resultType="Integer">
 		SELECT COUNT(*) FROM testBoard; 
 </select>
+
+<!-- 게시글 조회 수 증가 -->
+<update id="add_viewCnt" parameterType="Integer">
+	<![CDATA[
+	UPDATE 
+		testBoard 
+	   SET
+		viewCnt = viewCnt + 1 
+	 WHERE 
+		id = #{id}
+	]]> 
+</update>
+
+<!-- 내 게시글 가져오기 -->
+<select id="myboard" parameterType="hashmap" resultType="hashmap">
+	SELECT 
+            id,
+            title,
+            content,
+            viewCnt,
+            writer,
+            grp_no,
+            grp_ord,
+            dep,
+           	user_fk,
+            DATE_FORMAT(regdate, '%Y-%m-%d %H:%i:%s') AS regdate
+  
+	  FROM 
+	  		testBoard
+  	 WHERE 
+  	 		user_fk = #{user_fk}
+  ORDER BY
+  		 	regdate DESC;
+		
+</select>
+
+
 
 
 

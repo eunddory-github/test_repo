@@ -2,6 +2,16 @@
 <%@page import="java.util.List"%>
 <%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page import="java.util.Map"%>
+<%@page import="org.springframework.web.servlet.ModelAndView"%>
+<%@page import="java.util.Date"%>
+<%@page import="org.springframework.beans.factory.parsing.Location"%>
+<%@page import="com.exam.user.entity.User"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+ 
+
+
+
 <style>
 header.masthead {
 	display: none;
@@ -108,27 +118,20 @@ th, td {
 				</tr>
 			</thead>
 		<!-- 게시물이 들어갈 공간 -->
-			<c:if test="${not empty searchList}">	<!-- 검색한 게시물이 존재할 경우 -->
-				<c:forEach var="board" items="${searchList}">
-				<tr style="color: #ff52a0;">
-					<td>${board.id}</td>
+			<c:if test="${not empty shcList}">	<!-- 검색한 게시물이 존재할 경우 -->
+			
+					<td>11111111</td>
 					<td>
-						<c:if test="${board.dep > 1}">
-							<c:forEach var="i" begin="2" end="${board.dep}" >
-								&nbsp;&nbsp;
-							</c:forEach>
-								<img src ="/image/icon2.png" style="height:20px; width:20px;" /><b><span style="color: #ff52a0;">답변 :</span></b>
-						</c:if>
+						
 						<a style="margin-top: 0; height: 40px; color: orange;" href="detail?id=${board.id}">${board.title}</a>
 					</td>
-					<td>${board.writer}</td>
+				 	<td>1111111</td>
 					<td>
-						<fmt:formatDate value="${board.regdate}" pattern="yyyy-MM-dd HH:mm:ss"></fmt:formatDate>
-						${board.regdate}
+						1111111
 					</td>
-					<td>${board.viewCnt}</td>
+					<td>1111111</td>
 				</tr>
-			</c:forEach>
+	
 		<!-- 게시물이 들어갈 공간 end -->
 		</table>
 	</div><br>

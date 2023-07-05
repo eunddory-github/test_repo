@@ -59,11 +59,16 @@ th, td {
 <% 
 	// 로그인 세션
 	String loginUser = (String)session.getAttribute("loginUser"); // 로그인 되어있는 아이디
-	System.out.println("현 게시판에 로그인되어있는 아이디 : " + loginUser);
 %>
 <script type="text/javascript">
-	var url = "http://localhost:8080/";
-	var currentid = '<%=loginUser%>';
+	
+	
+	$(document).ready(function(){
+	});
+	
+	var url = "http://localhost:9000/";
+	var currentid = '<%=loginUser %>';
+	
 	// 로그아웃 실행
 	function logOut(){ 
 		if(!confirm("로그아웃 하시겠어요?")){
@@ -77,32 +82,29 @@ th, td {
 		if(ref==1)	location.href = url + "user/login";					// 로그인 페이지 
 		else 		location.href = url + "user/myPage?id=" + currentid	// 마이 페이지 
 	}
-
-    //검색버튼
+ 
+    //검색 페이지 이동
     function searchBtn(){
-    	var keyword = $("#keyword").val().trim();
-    	var schType = $("select[name='searchType']").val();
-    	
-    	alert('버튼눌림!');
-    	alert('키워드 ' + keyword + ' 타입 : '+schType);
-		location.href = "search?searchType="+schType+'&keyword='+keyword;
-    }
-    
-    //  게시글 작성 페이지
+    	alert("000000000000");
+		location.href = "/board/searchPage";
+    }   
+     
+    // 글쓰기 페이지 이동
    	function writeBtn(){
-    	alert('버튼눌림!');
-   		if(""==currentid || null==currentid){
-   			alert('회원만 작성이 가능합니다. \n 로그인 페이지로 이동합니다.');
-   			location.href = url + "user/login";
+   		if(currentid == 'null' || currentid == 'undefined'){
+   			alert("회원만 작성이 가능합니다. 로그인 페이지로 이동합니다.");
+   	   		location.href = url + "user/login";
+   		}else{
+   			location.href = url + "board/write";
    		}
-   		location.href = url + "board/write";
-   	}
+   		
+   	} 
+   
     
     
     
     
-    
-</script>
+</script> <!-------------- 게시물이 없을경우 show 처리필요--------------------------------- -->
 <div class="container" ><!-- 게시물 리스트 시작  -->
 	<div height: 100px;">
 		<h2 class="page-header" align="left"> 자유 게시판 <span style="color: #ff52a0;">ZONE</span></h2><br>
@@ -172,7 +174,7 @@ th, td {
 							</c:forEach>
 								<img src ="/image/icon2.png" style="height:20px; width:20px;" /><b><span style="color: #ff52a0;">답변 :</span></b>
 						</c:if>
-						<a style="margin-top: 0; height: 40px; color: orange;" href="detail?id=${board.id}">${board.title}</a>
+						<a style="margin-top: 0; height: 40px; color: orange;" href="/board/detail?id=${board.id}" >${board.title}</a>
 					</td>
 					<td>${board.writer}</td>
 					<td>
