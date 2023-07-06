@@ -26,7 +26,7 @@ public class springSecurity extends WebSecurityConfigurerAdapter {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-	
+	 
 	/**
 	 *  규칙설정
 	 **/

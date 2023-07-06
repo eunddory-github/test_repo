@@ -25,3 +25,4 @@ public interface userSVCinterface {
 	// 비밀번호 변경
 	int changePW(String id, String newpw);
 }
+ 

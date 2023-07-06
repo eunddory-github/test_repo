@@ -28,7 +28,7 @@
 		if( inp_id=="" || inp_pw =="" ){
 			alert("아이디와 비밀번호를 모두 입력해주세요.");
 			return;
-		}
+		} 
 		var sendData = { 
 				"id"	 	: inp_id,
 				"PassWord" 	: inp_pw

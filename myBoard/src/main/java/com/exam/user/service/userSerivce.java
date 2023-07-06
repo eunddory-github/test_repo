@@ -46,19 +46,19 @@ public class userSerivce implements userSVCinterface {
 		String email 	= (String)paramUser.get("email");
 		String phoneNumber = (String)paramUser.get("phoneNumber");
 		String userName = (String)paramUser.get("userName");
- 
+  
 		User user1 = new User();
 		user1.setEmail(email);
 		user1.setGender(gender);
 		user1.setId(id);
 		user1.setPhoneNumber(phoneNumber);
 		user1.setUserName(userName); 
-	
+	 
 		result = mapper.modifyMem(user1);
 		
 		return result;
 	}
-	
+	 
 	/* 회원 삭제 */
 	@Override
 	public int deleteUser(String id) {

@@ -19,7 +19,7 @@
   
   table td {
     padding: 10px;
-  }
+  } 
 
 </style>
 

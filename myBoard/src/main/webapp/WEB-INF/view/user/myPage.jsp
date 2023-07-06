@@ -600,7 +600,7 @@ label.error{
                <div class="col-md-6">
                    <input type="password" class="form-control" id="inp_changepw" name="changePW" >
                </div>
-            </div>
+            </div> 
             <div class="row mb-3 form-row">
                <div class="col-md-3">
 	               	<i class="bi bi-unlock-fill"></i>
@@ -622,6 +622,6 @@ label.error{
            <hr class="mb-4">
            <button class="btn btn-success btn-lg btn-block" onclick= "changePW();" >변경하기</button>
 	 </div> 
-	
+	 
 </div>
 </div>

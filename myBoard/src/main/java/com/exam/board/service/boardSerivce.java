@@ -33,7 +33,7 @@ public class boardSerivce implements boardSVCinterface {
 	private boardMapper mapper;
 	
 	/* 게시글 목록 */
-	@Override
+	@Override 
 	public List<Board> getAllList(criteria cri) {
 		return mapper.getAllList(cri);
 	}

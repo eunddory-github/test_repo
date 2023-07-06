@@ -38,5 +38,5 @@ public class User  {
 	private Date  	creatDt;		// 생성날짜
 
 
-	
+	 
 }

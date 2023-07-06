@@ -26,3 +26,4 @@ public interface userMapper {
 	// 비밀번호 변경
 	int changePW(@Param("id") String id, @Param("PassWord") String newpw);
 }
+ 

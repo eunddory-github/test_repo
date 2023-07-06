@@ -52,13 +52,13 @@ import com.exam.user.service.userSerivce;
 @RequestMapping("/board")
 @RestController
 public class boardController {
-		
+		 
 	 //private static final Logger logger = (Logger) LoggerFactory.getLogger(boardController.class);
 	
 	@Autowired
 	private boardSerivce service;
 
-	@Autowired
+	@Autowired  
 	private userSerivce user_service;
 	
 	

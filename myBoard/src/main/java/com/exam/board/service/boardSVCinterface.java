@@ -22,7 +22,7 @@ public interface boardSVCinterface {
 	// 게시글 삭제
 	int deleteBoard(int id);
 	
-	// 게시글 신규등록
+	// 게시글 신규등록 
 	int insertPost(Board board, HttpServletRequest request, MultipartFile uploadfile);
 	
 	// 게시글 수정

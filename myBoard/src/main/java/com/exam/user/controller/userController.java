@@ -46,7 +46,7 @@ import net.bytebuddy.dynamic.loading.PackageDefinitionStrategy.Definition.Undefi
 @RestController
 public class userController { 
 	
-	
+	 
 	//private static final Logger logger = (Logger) LoggerFactory.getLogger(userController.class);
 	
 	@Autowired
@@ -57,7 +57,7 @@ public class userController {
 
 	@Autowired
 	private boardSerivce boardSvc;
-	
+	 
 	ModelAndView mnv = new ModelAndView();
 
 	/***************************************

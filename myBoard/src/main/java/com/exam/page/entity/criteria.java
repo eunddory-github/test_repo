@@ -16,9 +16,9 @@ public class criteria {
 			if (page <= 0) {
 				this.page = 1;
 				return;
-			}
+			} 
 			this.page = page;
-		}
+		} 
 		
 		public void setPerPageNum(int perPageNum) {
 			if (perPageNum <= 0 || perPageNum > 50) {

@@ -12,7 +12,7 @@ import lombok.ToString;
 @Data
 public class pageVO { 
 	
-
+ 
 	private int totalCount;		// 총 글 수
 	private int startPage;		// 시작페이지
 	private int endPage;		// 끝 페이지
