@@ -130,10 +130,7 @@ public class userController {
 			session.setAttribute("loginUserInfo", userDto);
 
 			session.setMaxInactiveInterval(30*60);
-
-			User login_user = (User)session.getAttribute("loginUserInfo");
-			System.out.println("로그인 완료된 user id : " + login_user.getId());
-
+			
 			return userDto; 
 		}
 	}
@@ -162,32 +159,23 @@ public class userController {
 	/*****************************************
 	 * 회원정보 수정 
 	 *******************************************/
-	@ResponseBody
 	@PostMapping(value= {"/modifyUser"}, produces = {"application/json"})
 	public User modifyUser(@RequestBody Map<String, Object> paramUser){
 		
-		String id 		= (String)paramUser.get("id");
-		String gender 	= (String)paramUser.get("gender");
-		String email 	= (String)paramUser.get("email");
-		String phoneNumber = (String)paramUser.get("phoneNumber");
-		String userName = (String)paramUser.get("userName");
- 
-		User user1 = new User();
-			user1.setEmail(email);
-			user1.setGender(gender);
-			user1.setId(id);
-			user1.setPhoneNumber(phoneNumber);
-			user1.setUserName(userName); 
-			
-		int result = service.modifyMem(user1);  // 업데이트
-		if(result == 0) { 	
-			return null; 
+	
+		User resultDto = new User();
+		try {
+			int result = service.modifyMem(paramUser);  // 업데이트
+			if(result > 0) {
+				User user2 = service.isMember((String)paramUser.get("id"));	// 회원 조회
+				resultDto = user2;
+			}else {
+				return null;
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
-		
-		User user2 = service.isMember(id);	// 회원조회 
-		
-		mnv.addObject("loginDTO", user2); 		
-		return user2;	
+	return resultDto;
 		
 	}
 	
@@ -205,11 +193,9 @@ public class userController {
 		HttpSession session = request.getSession(); 
 		
 		try {
-			System.out.println("0000000");
-
 			if(!"".equals(delId)) {
 				User userDto = service.isMember(id); 
-				if(userDto != null && passwordEncoder.matches(passWord, userDto.getPassWord())) { 
+				if(userDto != null && passwordEncoder.matches(passWord, userDto.getPassWord())) { 					
 					result = service.deleteUser(id);	// 회원삭제
 					session.invalidate();
 					return result;
@@ -220,6 +206,7 @@ public class userController {
 			mnv.setViewName("errorPage");
 			mnv.addObject("msg", e.getMessage());
 		}
+		System.out.println(result);
 		return result;
 	}  
 	

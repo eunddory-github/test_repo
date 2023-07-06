@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.exam.board.entity.Board;
 import com.exam.board.mapper.boardMapper;
+import com.exam.page.entity.criteria;
 
 @Service
 public class boardSerivce implements boardSVCinterface {
@@ -30,119 +32,188 @@ public class boardSerivce implements boardSVCinterface {
 	@Autowired
 	private boardMapper mapper;
 	
-	// 목록
+	/* 게시글 목록 */
 	@Override
-	public List<Board> getAllList() {
-		return mapper.getAllList();
+	public List<Board> getAllList(criteria cri) {
+		return mapper.getAllList(cri);
 	}
 	
-	// 상세조회 
+	/* 상세조회 */
 	@Override
 	public Board detailBoard(int id) {
 		return mapper.detailBoard(id);
 	}
 
-	// 삭제 
+	/* 게시글 삭제 */
 	@Override
 	public int deleteBoard(int id) {		
 		return mapper.deleteBoard(id);
 	}
 	
-	// 최초 원글등록 
+	/* 신규 게시글 등록 */
 	@Override
-	public int insertPost(Board board){
+	public int insertPost(Board board, HttpServletRequest request, MultipartFile uploardFile){
 		
-		/* 첨부파일이 있는 경우
-		if(!file.isEmpty() && file != null) {
-			String filepath = ""; 
-			String filename = "";
-			
-			UUID uuid = UUID.randomUUID();													// 랜덤 식별자 생성(파일수정시 동일이름으로 인한 충돌방지위해)
-			filepath = System.getProperty("user.dir") + "/src/main/webapp/WEB-INF/images"; 	// 서버파일저장경로 user.dir = "프로젝트경로"
-			filename = uuid + "_" + file.getOriginalFilename();								// uuid와 파일이름 포함해서 이름 저장
-			
-			File saveFile  = new File(filepath ,filename);			// 파일 저장 시작 
-			try {
-				file.transferTo(saveFile);
-			} catch (Exception e) {
-				e.printStackTrace();
+		// 로그인 시 생성한 세션 key == 로그인한 user 의 id 값과 동일
+		HttpSession session = request.getSession();
+		String user_fk = (String)session.getAttribute("loginUser");	
+		int result = 0;
 		
-			}
-			board.setFilename(filename);
-			board.setFilepath("/WEB-INF/images/" + filename);				// static 하위폴더 경로만으로 접근 가능 
+		Board setBoard = new Board();
+		setBoard.setContent(board.getContent());
+		setBoard.setWriter(board.getWriter());
+		setBoard.setTitle(board.getTitle());
+		setBoard.setUser_fk(user_fk);
+		
+		if(uploardFile != null) {
+			uploadFile(uploardFile); // 파일 저장 및 파일정보 반환
+			
+			Map<String, Object> filekey = uploadFile(uploardFile);
+
+			setBoard.setOrigin_name((String)filekey.get("originName"));
+			setBoard.setFilename((String)filekey.get("fileName"));
+			setBoard.setFilepath("/files/" + (String)filekey.get("fileName")); // static 아래 부분 파일 경로만으로 접근가능, 업로드 처리 종료
 		}
-		*/
-		return mapper.insertPost(board);
+		result = mapper.insertPost(setBoard);
+		
+		return result;
 	}
 	
 	
-	// 게시글 수정
+	/* 게시글 수정  */
 	@Override
-	public int editPost(Board board) {
-		return mapper.editPost(board);
+	public int editPost(Board board, MultipartFile uploadFile) {
+		
+		int result = 0;
+		
+		Map<String, Object> filekey = uploadFile(uploadFile);
+		
+		board.setFilename((String)filekey.get("fileName"));
+		board.setOrigin_name((String)filekey.get("originName"));
+		board.setFilepath("/files/" + (String)filekey.get("fileName"));
+		
+		result = mapper.editPost(board);
+		
+		return result;
 	}
 	
-	// 답글 등록 시, 그룹 내 순서 먼저 업데이트 처리
+	/* 답글 등록 시, 부모글의 그룹 내 순서 증가 선처리 */
 	@Override
 	public int replyInsert_1(Board board) {
 		return mapper.replyInsert_1(board);
 	}
 	
-	// 답글 등록 
+	/* 답글 등록  */
 	@Override
-	public int replyInsert_2(Board board) {
-		return mapper.replyInsert_2(board);
+	public int replyInsert_2(Board board, HttpServletRequest request, MultipartFile uploadFile) {
+		HttpSession session = request.getSession();
+		String user_fk = (String)session.getAttribute("loginUser");
+		int result = 0;
+		
+		// 부모글 상세조회
+		Board p_board = detailBoard(board.getId()); 
+		p_board.setUser_fk(user_fk);
+		p_board.setContent(board.getContent());
+		p_board.setTitle(board.getTitle());
+		p_board.setWriter(board.getWriter());
+		
+		// 원글의 같은 그룹 내, grp_ord 보다 더 큰 값이 있으면  + 처리 
+		replyInsert_1(p_board);	
+		
+		if(uploadFile != null) {
+			Map<String, Object> filekey = uploadFile(uploadFile);	// 파일 업로드
+			
+			p_board.setOrigin_name((String)filekey.get("originName"));
+			p_board.setFilename((String)filekey.get("fileName"));
+			p_board.setFilepath("/files/" + (String)filekey.get("fileName")); // static 아래 부분 파일 경로만으로 접근가능, 업로드 처리 종료
+		}
+		result = mapper.replyInsert_2(p_board); // 등록
+
+		return result;
 	};
 	
-	// 총 게시물 수 
+	/* 총 게시물 수 */
 	@Override
 	public int totalCnt() {
 		return mapper.totalCnt();
 	}
 	
-	// 검색기능 
+	/* 게시글 검색 */
 	@Override
 	public List<Board> searchBoard(String searchType, String keyword) {
 		return mapper.searchBoard(searchType, keyword);
 	} 
 	
-	// 게시글 조회 수 증가
+	/* 게시글 조회 수 증가처리  */
 	@Override
 	public void add_viewCnt(int id, HttpServletRequest request, HttpServletResponse response ) {
-			/*
+			
+		 // 새로고침 조회 수 증가 방지
 		  Cookie[] cookies = request.getCookies();
 	        if(cookies != null) {	// 쿠키o
 	            for (Cookie cookie : cookies) {
-	            	//logging.debug("cookie.getname " + cookie.getName());
-	            	//logging.debug("cookie.getValue " + cookie.getValue());
-
 	                if (!cookie.getValue().contains(request.getParameter("id"))){
 	                    cookie.setValue(cookie.getValue() + "_" + request.getParameter("id"));
 	                    cookie.setMaxAge(60 * 60 * 2);  
 	                    response.addCookie(cookie);
-	                    mapper.add_viewCnt(id); // 증가 
+	                    mapper.add_viewCnt(id); 
 	                }
 	            }
 	        }else{ // 쿠키 X
 	            Cookie newCookie = new Cookie("visit_cookie", request.getParameter("id"));
 	            newCookie.setMaxAge(60 * 60 * 2);
 	            response.addCookie(newCookie);
-	            mapper.add_viewCnt(id); // 증가 
+	            mapper.add_viewCnt(id); 
 	        }
-		} 
-		*/ 
-		
-		mapper.add_viewCnt(id);
-		
-	
-	}
+	        mapper.add_viewCnt(id);
+	} 
 
-	// 내 게시글 가져오기
+	/* 마이페이지 - 내가 쓴 게시글 목록  */
 	@Override
 	public List<Board> myboard(String user_fk) {
 		return mapper.myboard(user_fk);
 	}
-	
-	
-	
+	 
+	/* file 저장 및 파일 정보반환  */
+	@Override
+	public Map<String, Object> uploadFile(MultipartFile uploadFile) {
+		
+		/* filePath = "classpath:static/files";  파일이 저장될 폴더 상대경로
+		 * 스프링부트는 system(user.dir) 로 프로젝트 경로를 읽어올 필요가 없음. 기본적으로 클래스path , 리소스 디렉토리에 대한 자동구성을 제공.
+		 * 따라서, classpath 라는 접두사를 사용하여 클래스 path 상대경로를 참조할 수 있음 */
+		 
+		UUID uuid = UUID.randomUUID(); // 랜덤식별자 생성 (*파일이름이 같을 경우,충돌방지 위해)
+		 
+		String filePath = System.getProperty("user.dir") + "/src/main/resources/static/files";		// 저장되는 파일경로
+		String originName = uploadFile.getOriginalFilename();										// 기존 파일이름
+		String fileName = uuid + "_" + uploadFile.getOriginalFilename(); 							// 파일이름 
+		
+		Map<String, Object> filekey = new HashMap<>();
+		filekey.put("filePath", filePath);
+		filekey.put("originName", originName);
+		filekey.put("fileName", fileName);
+		
+		// 저장되는 폴더가 없으면 폴더를 생성  
+        if (!new File(filePath).exists()) {
+            try{
+                new File(filePath).mkdir();
+            }
+            catch(Exception e){
+                e.getStackTrace();
+            }
+        }
+        
+		try {
+			File saveFile = new File(filePath, fileName);
+			uploadFile.transferTo(saveFile); // 파일저장
+
+		}catch(Exception e) {
+			e.printStackTrace();
+			
+		}
+		return filekey;
+	 }
+
 }
+	
+	

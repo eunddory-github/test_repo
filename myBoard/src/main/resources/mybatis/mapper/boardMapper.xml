@@ -17,21 +17,36 @@
 
 
 <!-- 게시글 리스트 -->
-<select id="getAllList" resultType="hashmap">
+<select id="getAllList" parameterType="com.exam.page.entity.criteria" resultType="hashmap">
 	SELECT 
-		   id,
-           title,
-           content,
-           viewCnt,
-           writer,
-           grp_no,
-           grp_ord,
-           dep, 
-           DATE_FORMAT(regdate, '%Y-%m-%d %H:%i:%s') AS regdate
-	FROM
-		testBoard
-	ORDER BY
-		grp_no DESC, grp_ord ASC;
+			id,
+			title,
+			content,
+			viewCnt,
+			writer,
+			grp_no,
+			grp_ord,
+			dep, 
+			DATE_FORMAT(regdate, '%Y-%m-%d %H:%i:%s') AS regdate
+	  FROM (
+	  		SELECT 
+	  				id
+	  				,title
+	  				,content
+	  				,viewCnt
+	  				,writer
+	  				,grp_no
+	  				,grp_ord
+	  				,dep
+	  				,DATE_FORMAT(regdate, '%Y-%m-%d %H:%i:%s') AS regdate
+	  				, ROW_NUMBER() OVER(ORDER BY id DESC) AS rownum
+	  		  FROM
+	  		  		testBoard
+	  		) testBoard
+	  WHERE
+	  		rownum BETWEEN #{rowStart} AND #{rowEnd}
+   ORDER BY
+			grp_no DESC, grp_ord ASC;
 		
 </select>
 
@@ -39,16 +54,19 @@
 <!-- 상세조회 -->
  <select id="detailBoard" resultType="com.exam.board.entity.Board"> 
        SELECT
-            id,
-            title,
-            content,
-            viewCnt,
-            writer,
-            grp_no,
-            grp_ord,
-            dep,
-           	user_fk,
-            DATE_FORMAT(regdate, '%Y-%m-%d %H:%i:%s') AS regdate
+            id
+            ,title
+            ,content
+            ,viewCnt
+            ,writer
+            ,grp_no
+            ,grp_ord
+            ,dep   
+            ,user_fk
+            ,filename
+            ,filepath
+            ,origin_name
+            ,DATE_FORMAT(regdate, '%Y-%m-%d %H:%i:%s') AS regdate 
         FROM
             testBoard
         WHERE
@@ -71,7 +89,10 @@
 			,regdate
 			,grp_no
 			,user_fk
-			)
+			,filename
+			,filePath
+			,origin_name
+			) 
     VALUES(
     	(SELECT id FROM (SELECT max(id)+1 as id FROM testBoard) A) 
 		,#{title}
@@ -82,7 +103,10 @@
 		,0
 		,sysdate()
 		,(SELECT id FROM (SELECT max(id)+1 as id FROM testBoard) B)
-		,#{user_fk} 
+		,#{user_fk}
+		,#{filename}
+		,#{filepath}
+		,#{origin_name} 
 	);	 
 	]]>
 </insert>
@@ -90,17 +114,20 @@
 <!--  게시글 수정  -->
 <update id="editPost" parameterType="com.exam.board.entity.Board">
 	UPDATE 
-		testBoard
-	SET 
-		title = #{title}
-		,content = #{content}
-		,writer = #{writer}
-		,regdate  = sysdate()
-	WHERE 
-		id = #{id}	
+			testBoard
+	   SET 
+			title 		= #{title}
+			,content 	= #{content}
+			,writer 	= #{writer}
+			,regdate  	= sysdate()
+			,filename 	= #{filename}
+			,filepath 	= #{filepath}
+			,origin_name= #{origin_name}
+	  WHERE 
+			id = #{id}	
 </update>
 
-<!-- 원글의 grp_ord 보다 더 큰 grp_ord 가 있으면 그 글의 grp_ord 을 먼저 +1 증가  --> 
+<!-- 답글 저장 전, 원글의 grp_ord 보다 더 큰 grp_ord 가 있으면 그 글의 grp_ord 을 먼저 +1 증가  --> 
 <update id="replyInsert_1" parameterType="com.exam.board.entity.Board">
 	<![CDATA[
 	UPDATE 
@@ -113,11 +140,11 @@
 </update>
 
 
-
+<!--  답글 저장 -->
 <insert id="replyInsert_2" parameterType="com.exam.board.entity.Board">
-    <!-- 원글의 step보다 더 큰 step을 가진 글이 있다면 그 글들의 step을 먼저 +1 한다. -->
     <![CDATA[
-    INSERT INTO testBoard (
+    INSERT 
+      INTO testBoard (
     		id
 			,title
 			,content
@@ -128,20 +155,26 @@
 			,regdate
 			,grp_no
 			,user_fk
+			,filename
+			,filepath
+			,origin_name
 			)
-    VALUES (
-    (SELECT id FROM (SELECT max(id)+1 as id FROM testBoard) A),
-    
-     #{title}
-     , #{content}
-     , #{writer}
-     , #{grp_ord} + 1
-     , #{dep} + 1
-     , 0
-     , sysdate()
-     , #{id}
-     , #{user_fk} 
-    );
+    VALUES 
+    (
+		    (SELECT id FROM (SELECT max(id)+1 as id FROM testBoard) A)
+		     ,#{title}
+		     , #{content}
+		     , #{writer}
+		     , #{grp_ord} + 1
+		     , #{dep} + 1
+		     , 0
+		     , sysdate()
+		     , #{id}
+		     , #{user_fk}
+		     , #{filename}
+		     , #{filepath}
+		     , #{origin_name}
+		    );
     ]]>
 
 </insert>

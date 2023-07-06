@@ -43,8 +43,13 @@
 		      contentType : "application/json",
 		      success: function(res) {
 					var result = res;
-					alert("로그인 성공!");
-					location.href='/board/list';
+					if(result != null){
+						alert("로그인 성공!");
+						location.href='/board/list';
+					}else{
+						alert("아이디와 비밀번호를 다시 확인해주세요. ");
+					}
+					
 		      },
 		      error: function(xhr, status, error) {
 		        console.log("오류가 발생했습니다. 잠시 후 다시 시도해주세요." + error);

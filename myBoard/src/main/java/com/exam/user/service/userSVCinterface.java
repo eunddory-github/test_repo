@@ -1,6 +1,7 @@
 package com.exam.user.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,9 +17,9 @@ public interface userSVCinterface {
 	User isMember(String id);
 	
 	// 회원정보 수정
-	int modifyMem(User user);
+	int modifyMem(Map<String, Object> paramUser);
 	
-	// 회원삭제
+	// 회원삭제 
 	int deleteUser(String id);
 	
 	// 비밀번호 변경

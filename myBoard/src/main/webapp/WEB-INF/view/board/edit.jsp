@@ -33,7 +33,7 @@ function go_back(){
 	var board_id = $("#hd_id").val();
 	location.href = "/board/detail?id=" + board_id;
 }
-//입력값 유효성 체크
+/* 입력값 유효성 체크  */ 
 function  validateCheck(){
 
 	var title	 =  $("#inp_title").val();
@@ -60,10 +60,10 @@ function  validateCheck(){
 	return true; 
 }
 
-// 게시글 수정동작 
+/* 게시글 수정 동작 */ 
 function editBoard(){
 	
-	//입력값 체크
+	//입력값 유효성 체크
 	if(!validateCheck()){ 	
 		return;
 	}
@@ -71,30 +71,38 @@ function editBoard(){
 		return;
 	}
 
-	var sendData = {};
-	sendData.writer		= $("#inp_writer").val();
-	sendData.title  	= $("#inp_title").val();
-	sendData.content 	= $("#inp_content").val();
-	sendData.id 		= $("#hd_id").val();
+	var formData = new FormData();
 	
-	alert("보낼 data : "+ JSON.stringify(sendData));
-	 $.ajax({
+	// 파일 데이터 추가
+	var inpFile  = $("input[name='file']")[0];
+	var files =  inpFile.files[0];
+	
+	formData.append("uploadFile", files)
+	
+	formData.append("writer", $("#inp_writer").val());
+	formData.append("content", $("#inp_content").val());
+	formData.append("title", $("#inp_title").val());	
+	formData.append("id", $("#hd_id").val());				
+	
+	
+	 $.ajax({ 
 	      url: "/board/edit",
 	      method: "POST",
-	      data: JSON.stringify(sendData),
-	      contentType: 'application/json',
+	      processData : false,	// 데이터 객체를 문자열로 바꿀지에 대한 값 true=일반문자/ false=데이터객체
+	      contentType: false,	// default 가 text, file을 보내야하므로 multipart/form-data
+	      data: formData,
 	      success: function(res) {
 				var result = res;
 				if(result > 0){
 					alert("게시글 수정완료!");
-					location.href = "/board/detail?id=" + sendData.id;
+					location.href = "/board/detail?id=" + $("#hd_id").val();
 				}
 	      }, 
 	      error: function(xhr, status, error) {
 	        console.log("오류가 발생했습니다. 잠시 후 다시 시도해주세요. " + error);
 	      }
 	});
-}
+} 
 
 
 
@@ -134,18 +142,20 @@ function editBoard(){
 			<tr>
 				<td>내용</td>
 				<td>
-					<textarea name="content" id ="inp_content" cols=85 rows=15>${boardDTO.content}</textarea>
+					<textarea name="content" id ="inp_content" cols=80 rows=5>${boardDTO.content}</textarea>
 				</td>
 			</tr>
 			<tr>
 				<td>파일</td>
 				<td>
-					<input type="file"  name="file" id="inp_file" name="file" multiple="multiple"/ value="${boardDTO.filepath}">
+					<img src="${boardDTO.filepath}" />
+					<span>${boardDTO.origin_name}</span><br>
+					<input type="file"  name="file" id="inp_file"  multiple="multiple">
 				</td>
 			</tr>
 		</table>
 		<div class="col-md-3 offset-md-1 text-end">
-    	<button type="submit" class="btn btn-success btn-lg btn-block" onclick="editBoard();">수정완료</button>
+    	<button class="btn btn-success btn-lg btn-block" onclick="editBoard();">수정완료</button>
    	 <button class="btn btn-success btn-lg btn-block" onclick="go_back();">돌아가기</button>
 		</div>
 	</td>

@@ -33,7 +33,6 @@
 
 </head>
 
-
 <script type="text/javascript">
 
 	// 게시글 목록으로 이동 
@@ -91,14 +90,12 @@
 		formData.append("writer", $("#inp_writer").val());
 		formData.append("title", $("#inp_title").val());
 		formData.append("content", $("#inp_content").val());
-
-		alert("보낼 data : "+ formData);
 		
 		 $.ajax({
 		      url: "/board/saveBoard",
 		      method: "POST",
-		      processData : false,
-		      contentType: false,
+		      processData : false,	// 데이터 객체를 문자열로 바꿀지에 대한 값 true=일반문자/ false=데이터객체
+		      contentType: false,	// default 가 text, file을 보내야하므로 multipart/form-data
 		      data: formData,
 		      success: function(res) {
 					var result = res;
@@ -109,7 +106,7 @@
 		      }, 
 		      error: function(xhr, status, error) {
 		        console.log("오류가 발생했습니다. 잠시 후 다시 시도해주세요. " + error);
-		      }
+		      } 
 		});
 	}
 	
@@ -152,12 +149,12 @@
 			<tr>
 				<td>파일</td>
 				<td>
-					<input type="file"  name="file" id="inp_file" name="file" multiple="multiple"/>
+					<input type="file"  name="file" id="inp_file"  multiple="multiple"/>
 				</td>
 			</tr>
 		</table>
 		<div class="col-md-3 offset-md-1 text-end">
-    	<button type="submit" class="btn btn-success btn-lg btn-block" onclick="saveBoard();">등록</button>
+    	<button class="btn btn-success btn-lg btn-block" onclick="saveBoard();">등록</button>
    	 <button class="btn btn-success btn-lg btn-block" onclick="go_list();">목록으로</button>
 		</div>
 	</td>

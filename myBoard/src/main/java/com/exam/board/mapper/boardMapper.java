@@ -5,13 +5,14 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.exam.board.entity.Board;
+import com.exam.page.entity.criteria;
 
 @Mapper
-public interface boardMapper {
+public interface boardMapper { 
 
 	// 게시글 리스트 가져오기 
-	List<Board> getAllList();
-	
+	List<Board> getAllList(criteria cri); 
+	 
 	// 게시글 상세조회
 	Board detailBoard(int id);
 	

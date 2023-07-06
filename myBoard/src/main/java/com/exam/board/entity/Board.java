@@ -61,6 +61,6 @@ public class Board {
 	// @OneToOne(fetch = FetchType.LAZY, mappedBy = "Board")
 	private String filename;		// 파일 이름 
 	private String filepath;		// 파일 경로
-
+	private String origin_name; 	// 실제 파일 이름
 
 }

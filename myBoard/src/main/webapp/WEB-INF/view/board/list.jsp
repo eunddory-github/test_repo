@@ -84,7 +84,7 @@ th, td {
 	}
  
     //검색 페이지 이동
-    function searchBtn(){
+    function searchBtn(){ 
     	alert("000000000000");
 		location.href = "/board/searchPage";
     }   
@@ -115,6 +115,7 @@ th, td {
            <div class="input-group">
                <span class="input-group-addon"><i class="fa fa-user"></i></span>
                <button class="form-control" onclick="go_page(1);">로그인 하러가기</button>
+               
            </div>
 <% 
 		}else{
@@ -172,31 +173,36 @@ th, td {
 							<c:forEach var="i" begin="2" end="${board.dep}" >
 								&nbsp;&nbsp;
 							</c:forEach>
-								<img src ="/image/icon2.png" style="height:20px; width:20px;" /><b><span style="color: #ff52a0;">답변 :</span></b>
+								<img src ="/image/icon2.png" style="height:20px; width:20px;" /><b><span style="color: #ff52a0;">답글 :</span></b>
 						</c:if>
 						<a style="margin-top: 0; height: 40px; color: orange;" href="/board/detail?id=${board.id}" >${board.title}</a>
 					</td>
 					<td>${board.writer}</td>
-					<td>
+					<td> 
 						<fmt:formatDate value="${board.regdate}" pattern="yyyy-MM-dd HH:mm:ss"></fmt:formatDate>
 						${board.regdate}
 					</td>
 					<td>${board.viewCnt}</td>
 				</tr>
 			</c:forEach>
-		<!-- 게시물이 들어갈 공간 end -->
+		<!-- 게시물이 들어갈 공간 end --> 
 		</table>
 	</div><br>
+	
 	<div class="paging center-div" style="vertical-align :middle;">
-		<button class="btn btn-secondary btn-lg">이전</button>
-		<% 
-		int arr[] = new int[]{1,2,3,4,5,6,7,8,9,10};
-			for(int i=1; i < arr.length +1 ; i++){ %>
-			<button><%= i%></button>
-		<% }%>
-		<button  class="btn btn-secondary btn-lg">다음</button>
-	</div><br><br><br>		
+		  <c:if test="${pageVO.prev}">
+	    	<button class="btn btn-secondary btn-lg" onclick="location.href='${pageVO.makeQuery(pageVO.startPage - 1)}'">이전</button>
+	    </c:if> 
+		<c:forEach begin="${pageVO.startPage}" end="${pageVO.endPage}" var="idx">
+	    	<button class="btn btn-secondary btn-lg" onclick="location.href='${pageVO.makeQuery(idx)}'">${idx}</button>   
+	    </c:forEach>  
+		   
+		<c:if test="${pageVO.next && pageVO.endPage > 0}"> 
+			    	<button class="btn btn-secondary btn-lg" onclick="location.href='${pageVO.makeQuery(pageVO.endPage + 1)}'">다음</button>
+	    </c:if>  
 	</div>
-</div>
+		<br><br><br>		
+	</div>
+</div> 
 
 					

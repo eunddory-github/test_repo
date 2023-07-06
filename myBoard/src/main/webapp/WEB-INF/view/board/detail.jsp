@@ -46,25 +46,30 @@
 		    	  "id" : $("#hd_id").val() 	// board의 id(pk) : 글번호
 		      },
 		      success: function(res) {	
-					var user_fk = res.user_fk;
+					var user_fk = res.user_fk; 
 					
 					$("#textid").text(res.id);
+					
 					$("#inp_title").text(res.title);
 					$("#re_title").text(res.title);
-					$("#hd_title").val(res.title)
-					$("#inp_writer").text(res.writer)
+					
+					$("#hd_title").val(res.title);
+					$("#hd_dep").val(res.dep);
+
+					$("#inp_writer").text(res.writer);
 					$("#inp_regdate").text(res.regdate);
 					$("#inp_viewCnt").text("조회 : " + res.viewCnt);
 					$("#inp_content").text(res.content);
-					$("#inp_file").text(res.filepath);
-					$("#hd_dep").val(res.dep);
-
+					$("#inp_file").text(res.origin_name); 
+										
+					if(res.filename != null){ 
+						$("img").attr("src", res.filepath); 
+					}else{
+						$("#inp_file").text('등록된 이미지 또는 파일이 존재하지 않습니다.');
+					}					 
 					if(user_fk == loginUser){	// 해당 게시글의 userid 와 세션id 가 동일한 경우만, 수정+삭제 가능
 						$("#delBtn").show();
 						$("#editBtn").show();
-					}
-					if(""==$("#inp_file").val() || null==$("#inp_file").val()){
-						$("#inp_file").text('등록된 이미지 또는 파일이 존재하지 않습니다.');
 					}
 					if(1 < $("#hd_dep").val()){ 	// 본문 or 답글 구분
 						$("#isreply").show();
@@ -72,7 +77,7 @@
 		      }
 		});
 		if(loginUser=='null'){		// 답글쓰기 버튼
-			$("#replyBtn").hide();
+			$("#replyBtn").hide(); 
 		}
 	});
 
@@ -97,17 +102,77 @@
 			location.href = "/board/list";
 		}
 	}
+
+	// 입력값 유효성 체크
+	function  validateCheck(){
 	
-	// 답글등록
-	function regReply(){
-		// validation 체크 후 
+		var content  =	$("#re_content").val();
+		var writer   =  $("#re_writer").val();
 		
-		alert("답글등록시작!");
-		$("#reply_frm").submit();
+		var regex = /^[가-힣]+$/; 
+			
+		if(""==content || ""==writer){
+			alert("입력란을 모두 채워주세요.");
+			return;
+		}
+		if(!regex.test(writer) || 5 < writer.length){
+			alert("이름은 한글 5자 이하로 입력해주세요.");
+			return;
+		}
+		if( 300 < content.length ){
+			alert("내용은 300자 이하로 입력해주세요.");
+			return;
+		}
 		
+		return true; 
 	}
+		
+	// 답글 등록
+	function regReply(){
+		
+		if(!validateCheck()){ 	
+			return;
+		}
+		if(!confirm('답글을 등록할까요?')){
+			return;
+		}
 	
+		var formData = new FormData();
+		
+		// 파일 데이터 추가
+		var inpFile  = $("input[name='file']")[0];
+		var files =  inpFile.files[0];
+		 
+		formData.append("uploadFile", files)
+		
+		// 나머지 데이터 추가 
+		formData.append("writer", $("#re_writer").val());
+		formData.append("content", $("#re_content").val());
+		formData.append("title", $("#hd_title").val());		// 원글(부모글 제목)
+		formData.append("id", $("#hd_id").val());			// 원글(부모글 id)
+ 		
+		 $.ajax({
+		      url: "/board/reply",
+		      method: "POST",
+		      processData : false,	// 데이터 객체를 문자열로 바꿀지에 대한 값 true=일반문자/ false=데이터객체
+		      contentType: false,	// default 가 text, file을 보내야하므로 multipart/form-data
+		      data: formData,
+		      success: function(res) {
+					var result = res;
+					if(result > 0){
+						alert("답글 등록완료!");
+						location.href = "/board/list";
+					}
+		      }, 
+		      error: function(xhr, status, error) {
+		        console.log("오류가 발생했습니다. 잠시 후 다시 시도해주세요. " + error);
+		      } 
+		});
+	} 
 	
+
+
+
 	
 </script>
 	
@@ -116,7 +181,7 @@
 </div>
 <div class="container">
     <h3>
-    	<span style="color: #ff52a0; display: none;" id="isreply" ><strong>[답변글]</strong></span>
+    	<span style="color: #ff52a0; display: none;" id="isreply" ><strong>[답글]</strong></span>
     	<span style="color: #ff52a0;" id="textid"></span>번 게시글 상세
     </h3>
     <div class="row">
@@ -149,10 +214,11 @@
                      <tr>
                     	<td>첨부파일</td>
                        	<td colspan="2">
-                        	<p id="inp_file"></p>
+                        	<img src=""/>
+                        	<p id ="inp_file"></p>
                         </td>
                     </tr>
-                </tbody>
+                </tbody> 
             </table>
             <table class="table table-condensed">
                 <thead>
@@ -178,16 +244,16 @@
 <div class="container" style="display: none;" id="replyContent"><!--------------------------- 답글 작성영역 ------------------------------>
 	<div class="row">
         <div class="col-md-10">
-        	<form id="reply_frm" method="post" action="/board/reply"> 
         	<input type="hidden" id="hd_id" name="id" value="${boardId}">
         	<input type="hidden" id="hd_title" name="title" value="">
         	<input type="hidden" id="hd_dep" value ="" >
             <table class="table table-condensed">
                 <thead>
-                    <tr align="center">
-                        <th width="10%" style="color: #ff52a0;">[답변글]</th>
+                    <tr align="center"> 
+                        <th width="10%" style="color: #ff52a0;"><i class="bi bi-chat-square-text-fill"></i>
+                        [답글]</th>
                    		<th style="color: #ff52a0;" id="re_title"></th>
-                    </tr>
+                    </tr> 
                 </thead>
                 <tbody>
                     <tr>
@@ -204,122 +270,15 @@
                     </tr>
                      <tr>
                     	<td>첨부파일</td>
-                       	<td colspan="2">
-                        	<input type="file"  id="re_file"  multiple="multiple" >
+                       	<td colspan="2"> 
+                        	<input type="file"  id="re_file" name="file"  multiple="multiple" >
                         </td>
                     </tr>
                 </tbody>
             </table>
           </div>
 	</div>
-	</form>
-	<button type="submit" class="btn btn-secondary btn-lg" onclick="regReply();" > 답변등록</button>
+	<button class="btn btn-secondary btn-lg" onclick="regReply();" > 답글등록</button>
     <button class="btn btn-secondary btn-lg" onclick="javascript:replyBtn(0);">취소하기</button>
 </div>             
 
-<!--  
-<div class="container" id="replydep"
-	<div class="row">
-        <div class="col-md-10">
-            <table class="table table-condensed">
-                <thead>
-                    <tr align="center">
-                        <th width="10%" style="color: #ff52a0;">[답글]</th>
-                        <th width="60%" style="color: #ff52a0;"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                   <tr>
-                        <td>작성일</td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>작성자</td>
-                        <td>
-                        	<span ></span>
-                        	<span style='float:right'></span>
-                        </td>
-                    </tr> 
-                    <tr>
-                    	<td>내용</td>
-                       	<td colspan="2">
-                        	<p ></p>
-                        </td>
-                    </tr>
-                     <tr>
-                    	<td>첨부파일</td>
-                       	<td colspan="2">
-                        	<p ></p>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-          </div>
-	</div>
-</div>             
-  
- -->
-
-
-
-<!-- 
-<div class="container-fluid"  >
-	<img src="/image/reply_icon.png" height="20" width="20"> 답글 작성하기
-	<form action="reply" method="post" enctype="multipart/form-data" id="replyForm">
-	
-		<div class="row mt-4">
-			<div class="col-md-10 offset-md-1">
-				<div class="form-floating">
-					<input type="text" name="writer" id="hd_writer" required placeholder="작성자">
-				</div>
-			</div>
-		</div>
-		<div class="row mt-4">
-			<div class="col-md-10 offset-md-1">
-				<textarea class="form-control" name="content" id="hd_content" rows="15" required placeholder="답글을 작성해주세요."></textarea>
-			</div>
-		</div>
-		<div class="row mt-4">
-			<div class="col-md-10 offset-md-1">
-				<input type="file" id="" name="file" multiple="multiple"/>
-			</div>
-		</div><hr>
-		<div class="row mt-4">
-			<div class="col-md-10 offset-md-1 text-end">
-				<button type="submit" class="btn btn-secondary btn-lg">답변등록</button>
-			</div>
-		</div>
-	</form>
-	<button class="btn btn-secondary btn-lg" onclick="javascript:isViewReply(2);">취소</button>
-</div>
--->        
-
-<!--  
-	<div class="row mt-4"><!-- 댓글 표시 영역 시작
-		<div class="col-md-10 offset-md-1">
-			<img src="/image/reply.png" width="20" height="20"></span>5506
-		</div>
-	</div><hr>
-	<div class="row mt-4">
-		<div class="col-md-10 offset-md-1">
-			<form action="??" method="post">
-				<p>은또리야(로그인한 닉네임)</p>
-				<textarea class="form-control" rows="4" style="resize: none;" placeholder="댓글을 남겨보세요"></textarea>
-				<button type="submit" class="btn btn-primary w-100 mt">등록</button>
-			</form>	
-		</div>
-	</div>
-	<div class="row-mt-4">
-		<div class="col-md-10 offset-md-1">
-			<hr>
-			<h5 class="text-dark">작성자</h5>
-			<h6 class="text-secondary">1분 전</h6>
-			<pre class ="mt-3" style="min-heigth:75px">댓글영역</pre><hr>
-		</div>
-	</div> 댓글 표시 영역 end -------------->
-
-
-
-
-
-  

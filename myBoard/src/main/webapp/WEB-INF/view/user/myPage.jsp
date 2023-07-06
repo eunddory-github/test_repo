@@ -13,6 +13,7 @@
 <head>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script> <!--  차트js --> 
 
 <title>내 정보</title>
 <style>
@@ -46,7 +47,7 @@ label.error{
 %>
 <script type="text/javascript">
 
- 	$(document).ready(function(){
+ $(document).ready(function(){
 	  // 페이지 진입 시, 성별 체크
  		if($("#hd_gender").val() == 1){
 			$("#gender1").attr("checked", true);
@@ -57,7 +58,7 @@ label.error{
 	  // 마이페이지 - 전화번호입력 길이제한
 	  $("input[type=number]").keyup(function(){
         if($(this).val().length > $(this).attr("maxlength")) {
-            $(this).val($(this).val().substr(0, $(this).attr("maxlength")));
+            $(this).val($(this).val().substr(0, $(this).attr("maxlength"))); 
         }
 	  });
 	  
@@ -115,9 +116,7 @@ label.error{
  		    	  $(this).prop("checked", true);
  		      })
  		    }
- 	 });
-
-	
+ 	 });	
 });
  	
  	
@@ -399,6 +398,7 @@ label.error{
 		});	
 	}
 	
+
 </script>
 <!-- 네비게이션 -->
 <ul class="nav nav-tabs">
@@ -588,7 +588,7 @@ label.error{
                   <label for="beforePW">현재 비밀번호</label>
                </div>
                <div class="col-md-6">
-                   <input type="text" class="form-control" id="inp_beforepw" name="beforePW" >
+                   <input type="password" class="form-control" id="inp_beforepw" name="beforePW" >
                    <input type="hidden" id="chkbfpw" value=""/>
                </div>
             </div><br>
@@ -598,7 +598,7 @@ label.error{
 					<label for="changePW">새 비밀번호</label>
                </div>
                <div class="col-md-6">
-                   <input type="text" class="form-control" id="inp_changepw" name="changePW" >
+                   <input type="password" class="form-control" id="inp_changepw" name="changePW" >
                </div>
             </div>
             <div class="row mb-3 form-row">
@@ -607,7 +607,7 @@ label.error{
 					<label for="rePW">새 비밀번호 확인</label> 
                </div>
                <div class="col-md-6">
-                   <input type="text" class="form-control" id="inp_repw" name="rePW" >
+                   <input type="password" class="form-control" id="inp_repw" name="rePW" >
                </div>
            </div>
            <div class="text-alarm-msg" style="text-align: center;"  >
@@ -615,12 +615,12 @@ label.error{
            </div>
            <div class="text-alarm-msg" >
            		<i class="bi bi-info-square-fill" style="color : #13A6F1;" ></i> 
-           		<a id="lostpw" href="#"> 비밀번호를 잊어버리셨나요?</span>
+           		<a id="lostpw" href="#"> 비밀번호를 잊어버리셨나요?</span> 
            </div>
            
        </div>
            <hr class="mb-4">
-           <button class="btn btn-success btn-lg btn-block" onclick= "changePW();"  >변경하기</button>
+           <button class="btn btn-success btn-lg btn-block" onclick= "changePW();" >변경하기</button>
 	 </div> 
 	
 </div>
