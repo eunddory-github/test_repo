@@ -200,19 +200,18 @@
 <select id="searchBoard" parameterType="hashmap" resultType="hashmap">
 
 	SELECT * 
-	  FROM 
-	  	   testBoard
+	  FROM testBoard
  	<if test="searchType.equals('title')">
- 		WHERE title LIKE CONCAT('%', #{keyword}, '%')	
+ 	 WHERE title LIKE CONCAT('%', #{keyword}, '%')	
  	</if>
 	<if test="searchType.equals('content')">
- 		WHERE content LIKE CONCAT('%', #{keyword}, '%')	
+    WHERE content LIKE CONCAT('%', #{keyword}, '%')	
  	</if>
  	<if test="searchType.equals('writer')">
- 		WHERE writer LIKE CONCAT('%', #{keyword}, '%')	
+ 	WHERE writer LIKE CONCAT('%', #{keyword}, '%')	
  	</if>
-	ORDER BY
-		 grp_no DESC, grp_ord ASC;
+ ORDER BY grp_no DESC, grp_ord ASC;
+ 
 </select>
 
 <!-- 총 게시물 수  -->

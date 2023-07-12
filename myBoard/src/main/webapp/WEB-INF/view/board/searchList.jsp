@@ -54,14 +54,7 @@ th, td {
 <script type="text/javascript">
     $(document).ready(function() {	
     });
-    
-    //검색버튼
-    function searchBtn(){
-    	var keyword = $("#keyword").val().trim();
-    	var schType = $("select[name='searchType']").val();
-    	
-    	location.href = "search?searchType="+schType+"&keyword="+keyword;
-    }
+   
 </script>
 
 <div class="container" ><!-- 게시물 리스트 시작  -->
@@ -118,12 +111,11 @@ th, td {
 				</tr>
 			</thead>
 		<!-- 게시물이 들어갈 공간 -->
-			<c:if test="${not empty shcList}">	<!-- 검색한 게시물이 존재할 경우 -->
 			
 					<td>11111111</td>
 					<td>
 						
-						<a style="margin-top: 0; height: 40px; color: orange;" href="detail?id=${board.id}">${board.title}</a>
+						<a style="margin-top: 0; height: 40px; color: orange;" ></a>
 					</td>
 				 	<td>1111111</td>
 					<td>
@@ -135,7 +127,6 @@ th, td {
 		<!-- 게시물이 들어갈 공간 end -->
 		</table>
 	</div><br>
-	</c:if> 
 	
 	<div class="search list none-view"><!-- 검색한 게시물이 존재하지 않을 경우 -->
 		<h2>검색 결과가 없습니다.</h2>	

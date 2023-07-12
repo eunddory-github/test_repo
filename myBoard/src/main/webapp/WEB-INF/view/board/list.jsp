@@ -85,9 +85,144 @@ th, td {
  
     //검색 페이지 이동
     function searchBtn(){ 
-    	alert("000000000000");
-		location.href = "/board/searchPage";
-    }   
+	
+    	var sendData  = {};
+    	sendData.searchType = $("select[name='searchType']").val();	
+    	sendData.keyword 	= $("#keyword").val().trim();
+    	alert("보낼 data  :" + JSON.stringify(sendData));
+
+		$.ajax({	
+		      url: "/board/searchList",
+		      method: "POST",
+		      data: JSON.stringify(sendData), 
+		      dataType:  "json",
+		      async: true, // 비동기 설정
+		      contentType: "application/json",   
+		      success: function(res) {
+					var resultList = res; 	 
+
+					alert(resultList[0].writer);
+					    
+
+					    var searchList = $("#searchList");
+					    searchList.empty();
+
+					    if (resultList.length > 0) {
+					        for (var i = 0; i < resultList.length; i++) {
+					            var board = resultList[i];
+
+					            var tr = $("<tr>").css("color", "#ff52a0");
+					            tr.append($("<td>").text(board.id));
+
+					            var td = $("<td>");
+
+					            if (board.dep > 1) {
+					                for (var j = 2; j <= board.dep; j++) {
+					                    td.append("&nbsp;&nbsp;");
+					                }
+					                td.append($("<img>").attr("src", "/image/icon2.png").css({"height": "20px", "width": "20px"}));
+					                td.append($("<b>").append($("<span>").css("color", "#ff52a0").text("답글 :")));
+					            }
+
+					            var a = $("<a>").css({"margin-top": "0", "height": "40px", "color": "orange"})
+					                            .attr("href", "/board/detail?id=" + board.id)
+					                            .text(board.title);
+					            td.append(a);
+
+					            tr.append(td);
+					            tr.append($("<td>").text(board.writer));
+					            tr.append($("<td>").text(board.regdate));
+					            tr.append($("<td>").text(board.viewCnt));
+
+					            searchList.append(tr);
+					        }
+					    }
+					   /*
+					    if (resultList.length > 0) {
+					        for (var i = 0; i < resultList.length; i++) {
+					            var board = resultList[i];
+					            var html = "";
+
+					            html += '<tr style="color: #ff52a0;">';
+					            html += '<td>' + board.id + '</td>';
+					            html += '<td>';
+					            if (board.dep > 1) {
+					                for (var j = 2; j <= board.dep; j++) {
+					                    html += '&nbsp;&nbsp;';
+					                }
+					                html += '<img src="/image/icon2.png" style="height:20px; width:20px;" />';
+					                html += '<b><span style="color: #ff52a0;">답글 :</span></b>';
+					            }
+
+					            html += '<a style="margin-top: 0; height: 40px; color: orange;" href="/board/detail?id=' + board.id + '">' + board.title + '</a>';
+					            html += '</td>';
+					            html += '<td>' + board.writer + '</td>';
+					            html += '<td>' + board.regdate + '</td>';
+					            html += '<td>' + board.viewCnt + '</td>';
+					            html += '</tr>';
+
+					            $("tbody #searchList").append(html);
+					        }
+
+					        
+					        
+					        
+					    }
+		      
+					
+					*/
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					/*
+					if(resultList.length > 0){
+						for (var i = 0; i < resultList.length; i++) {
+						    var board = resultList[i];
+							var html = ""; 
+		
+						    html += '<tr style="color: #ff52a0;">';
+						    html += '<td>' + board.id + '</td>';
+						    html += '<td>';
+						    if (board.dep > 1) {
+						        for (var j = 2; j <= board.dep; j++) {
+						            html += '&nbsp;&nbsp;';
+						        }
+						        html += '<img src="/image/icon2.png" style="height:20px; width:20px;" />';
+						        html += '<b><span style="color: #ff52a0;">답글 :</span></b>';
+						    }
+	
+						    html += '<a style="margin-top: 0; height: 40px; color: orange;" href="/board/detail?id=' + board.id + '">' + board.title + '</a>';
+						    html += '</td>';
+						    html += '<td>' + board.writer + '</td>';
+						    html += '<td>' + board.regdate + '</td>';
+						    html += '<td>' + board.viewCnt + '</td>';
+						    html += '</tr>';
+						    
+							$("tbody #searchList").append(html);  
+
+						} 
+					} 
+				*/	
+		      }, 
+		      error: function(xhr, status, error) {
+					alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+		      }
+		});
+	  	 
+    }
      
     // 글쓰기 페이지 이동
    	function writeBtn(){
@@ -130,7 +265,7 @@ th, td {
 %>
         </div>
 	<!-- 검색바 -->
-	<div class="row mt-4">
+	<div class="row mt-4">  
 		<div class="col-md-10 offset-md-1">
 			<div class="collapse show" id="collapse-body">
 				<div class="card-body">
@@ -157,13 +292,15 @@ th, td {
 		<table class="table table-bordered table-hover">
 			<thead>
 				<tr style="background-color: #ff52a0; margin-top: 0; height: 40px; color: white; border: 0px solid #f78f24; opacity: 0.8">
-					<th>no.</th>
+					<th id="num">no.</th>
 					<th>제목</th>
 					<th>작성자</th>
 					<th>작성일</th>
 					<th>조회수</th>
 				</tr>
 			</thead>
+		<tbody id="searchList">
+
 		<!-- 게시물이 들어갈 공간 -->
 				<c:forEach var="board" items="${list}">
 				<tr style="color: #ff52a0;">
@@ -186,6 +323,7 @@ th, td {
 				</tr>
 			</c:forEach>
 		<!-- 게시물이 들어갈 공간 end --> 
+			</tbody>
 		</table>
 	</div><br>
 	

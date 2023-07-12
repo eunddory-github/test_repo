@@ -21,6 +21,7 @@ import org.hibernate.internal.build.AllowSysOut;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,7 +75,7 @@ public class boardController {
 		
 		pageVO pvo = new pageVO();
 		pvo.setCri(cri);
-		pvo.setTotalCount(service.totalCnt());
+		pvo.setTotalCount(service.totalCnt()); 		// caldata() 페이징처리
 		
 		mnv.addObject("totalCnt", service.totalCnt());
 		mnv.addObject("list", service.getAllList(cri));
@@ -90,16 +91,14 @@ public class boardController {
 	 **************************************/
 	@PostMapping("/saveBoard") 
 	public int saveBoard(@ModelAttribute Board board, HttpServletRequest request
-							, MultipartFile uploadFile)throws Exception {
+							, MultipartFile uploadFile) throws Exception {
 		int result = 0;
 		try {
 			result = service.insertPost(board, request, uploadFile);
-			if(result > 0) {
-            	result = 1;
-            }
+			return result;
 		}catch (Exception e) {
 			e.printStackTrace();
-        	throw new RuntimeException("게시글 등록에 실패했습니다.");
+			// 에러페이지 이동 
 		}
 		return result;
 	}
@@ -202,33 +201,35 @@ public class boardController {
 	        }
 	    return result;
 	} 
-		
+	
 
 	/*****************************************
 	 * 검색기능 (제목/내용/작성자)  
 	 *****************************************/
-	@RequestMapping("/search")
-	public ModelAndView searchBoard(@RequestParam(value = "searchType", required = false, defaultValue = "title") String searchType,
-		@RequestParam(value = "keyword", required = false, defaultValue = "") String keyword) {
-	
-		List<Board> shc_list = service.searchBoard(searchType, keyword);
+	  
+	@PostMapping(value= {"/searchList"}, produces = {"application/json"})
+	public List<Board> searchBoard(@RequestBody Map<String, Object> searchData
+			){
+		
+		// @RequestParam(value = "searchType", required = false, defaultValue = "title") String searchType,
+	    // @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword) {
+		
+		 String keyword = (String)searchData.get("keyword"); 
+		 String searchType = (String)searchData.get("searchType");
+
+		System.out.println("keyword :" + keyword);
+		System.out.println("searchType :" + searchType);
+
+		List<Board> shcList = service.searchBoard(searchType, keyword);
+		
+		System.out.println("검색된 결과 list :" + shcList.toString());
+		System.out.println("검색된 결과 list 길이:" + shcList.size());
 		 
-		mnv.addObject("shcList", shc_list);
-		mnv.setViewName("board/searchList");
-	
-	    return mnv;
-			
+		
+		
+	    return shcList;
 
 	}
-	/*****************************************
-	 * 검색결과 페이지  
-	 *****************************************/
-	@RequestMapping("/searchPage")
-	public ModelAndView searchpage() {
-		mnv.setViewName("board/searchList"); 
-		return mnv;
-	}
-	
 	
 	/*****************************************
 	 * 마이페이지 - 내 게시글  - 체크한 글 삭제

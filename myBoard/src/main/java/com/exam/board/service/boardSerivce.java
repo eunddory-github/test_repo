@@ -16,6 +16,8 @@ import org.apache.logging.log4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +25,17 @@ import com.exam.board.entity.Board;
 import com.exam.board.mapper.boardMapper;
 import com.exam.page.entity.criteria;
 
+
+/*	[ transactional 성질 ]
+ * 	1. 원자성 : 한 트랜잰셕 내의 실행한 작업은 하나의 단위로 처리. 모두 성공이거나, 모두 실패
+ * 	2. 일관성 : 일관성 있는 데이터베이스 상태 유지
+ * 	3. 격리성 : 동시에 실행되는 트랜잭션이 서로 영향 미치지 않도록 격리
+ * 	4. 영속성 : 성공적으로 처리될 시, 결과가 항상 저장되어야 함
+ * 
+ * 	메소드 실행 시 스프링의 PlatformTransactionManager 인터페이스를 사용하여 트랜잭션을 시작, 정상 여부에 따라 Commit/Rollback 동작을 수행
+ */
+
+@Transactional	// 선언적 트랜잭션. (runtimeException 또는 error 발생 시, rollBack 처리)
 @Service
 public class boardSerivce implements boardSVCinterface {
 
@@ -35,6 +48,7 @@ public class boardSerivce implements boardSVCinterface {
 	/* 게시글 목록 */
 	@Override 
 	public List<Board> getAllList(criteria cri) {
+		System.out.println(TransactionSynchronizationManager.getCurrentTransactionName());
 		return mapper.getAllList(cri);
 	}
 	
@@ -74,6 +88,7 @@ public class boardSerivce implements boardSVCinterface {
 			setBoard.setFilename((String)filekey.get("fileName"));
 			setBoard.setFilepath("/files/" + (String)filekey.get("fileName")); // static 아래 부분 파일 경로만으로 접근가능, 업로드 처리 종료
 		}
+		System.out.println(TransactionSynchronizationManager.getCurrentTransactionName());
 		result = mapper.insertPost(setBoard);
 		
 		return result;

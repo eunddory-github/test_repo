@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.ToString;
 
 /* 페이징 처리 위한 클래스 */
-
 @ToString
 @Data
 public class pageVO { 

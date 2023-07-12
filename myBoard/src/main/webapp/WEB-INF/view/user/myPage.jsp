@@ -146,7 +146,7 @@ label.error{
 		}
 		if(!confirm('수정하시겠습니까?')){
 			return;
-		}
+		} 
 		var sendData = {};
 		sendData.id 		= $("#hd_id").val();
 		sendData.userName 	= $("#inp_userName").val();

@@ -4,12 +4,14 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.exam.board.entity.Board;
 import com.exam.board.mapper.boardMapper;
 import com.exam.user.entity.User;
 import com.exam.user.mapper.userMapper;
 
+@Transactional
 @Service
 public class userSerivce implements userSVCinterface {
 

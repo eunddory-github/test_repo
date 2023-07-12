@@ -7,7 +7,7 @@ import lombok.ToString;
 public class criteria {
 
 		private int page = 1;			// 페이지 번호 (1,2,3,4,5 ...)
-		private int perPageNum = 5;	// 한 페이지당 보여줄 게시물 수 
+		private int perPageNum = 10;		// 한 페이지당 보여줄 게시물 수 
 		private int rowStart;			// row 행 시작행 		
 		private int rowEnd;				// row 행 끝 행 번호
 		
@@ -21,8 +21,8 @@ public class criteria {
 		} 
 		
 		public void setPerPageNum(int perPageNum) {
-			if (perPageNum <= 0 || perPageNum > 50) {
-				this.perPageNum = 5;
+			if (perPageNum <= 0 || perPageNum > 100) {
+				this.perPageNum = 10;
 				return;
 			}
 			this.perPageNum = perPageNum;
