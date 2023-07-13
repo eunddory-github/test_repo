@@ -55,7 +55,7 @@
 					
 					$("#hd_title").val(res.title);
 					$("#hd_dep").val(res.dep);
-
+ 
 					$("#inp_writer").text(res.writer);
 					$("#inp_regdate").text(res.regdate);
 					$("#inp_viewCnt").text("조회 : " + res.viewCnt);
@@ -66,7 +66,7 @@
 						$("img").attr("src", res.filepath); 
 					}else{
 						$("#inp_file").text('등록된 이미지 또는 파일이 존재하지 않습니다.');
-					}					 
+					}		 			 
 					if(user_fk == loginUser){	// 해당 게시글의 userid 와 세션id 가 동일한 경우만, 수정+삭제 가능
 						$("#delBtn").show();
 						$("#editBtn").show();
@@ -82,12 +82,12 @@
 	});
 
 	
-	// 답글작성 영역 btn 
+	/* 답글 영역 노출여부 */
 	function replyBtn(ref){	 
 		ref == '1' ? $("#replyContent").show() : $("#replyContent").hide()
 	}
 	
-	//  게시글 수정/삭제/목록 이동
+	/* 게시글 삭제, 수정, 목록  */
 	function goAction(ref){
 		var id = $("#hd_id").val(); 
 		
@@ -102,8 +102,8 @@
 			location.href = "/board/list";
 		}
 	}
-
-	// 입력값 유효성 체크
+	
+	/* 답글_입력값 유효성 체크 여부 */
 	function  validateCheck(){
 	
 		var content  =	$("#re_content").val();
@@ -127,7 +127,7 @@
 		return true; 
 	}
 		
-	// 답글 등록
+	/* 답글 등록 실행 */
 	function regReply(){
 		
 		if(!validateCheck()){ 	
@@ -143,7 +143,7 @@
 		var inpFile  = $("input[name='file']")[0];
 		var files =  inpFile.files[0];
 		 
-		formData.append("uploadFile", files)
+		formData.append("uploadFile", files);
 		
 		// 나머지 데이터 추가 
 		formData.append("writer", $("#re_writer").val());

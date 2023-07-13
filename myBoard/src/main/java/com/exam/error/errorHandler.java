@@ -17,7 +17,7 @@ public class errorHandler implements ErrorController {
 
 	// private final Logger logger = (Logger) LoggerFactory.getLogger(this.getClass());
 
-	@RequestMapping(value = "/error")
+	@RequestMapping(value = "/error") 
 	public ModelAndView handleError(HttpServletResponse response) {
 
 		int statusCode = response.getStatus();					// 에러코드 획득
@@ -37,8 +37,8 @@ public class errorHandler implements ErrorController {
 				return new ModelAndView("error/500");
 			}	
 		}
-		// 나머지 모든 에러 
-		return new ModelAndView("eroor/etc");
+		// 나머지 모든 에러  
+		return new ModelAndView("error/etc");
 	}	
 
 }

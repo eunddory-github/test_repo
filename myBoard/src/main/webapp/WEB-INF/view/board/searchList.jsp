@@ -8,9 +8,6 @@
 <%@page import="org.springframework.beans.factory.parsing.Location"%>
 <%@page import="com.exam.user.entity.User"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
- 
-
- 
 
 <style>
 header.masthead {

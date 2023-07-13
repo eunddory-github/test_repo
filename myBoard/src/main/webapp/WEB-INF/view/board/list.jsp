@@ -69,7 +69,7 @@ th, td {
 	var url = "http://localhost:9000/";
 	var currentid = '<%=loginUser %>';
 	
-	// 로그아웃 실행
+	/* 로그아웃 */
 	function logOut(){ 
 		if(!confirm("로그아웃 하시겠어요?")){
 			return;
@@ -77,13 +77,13 @@ th, td {
 		location.href = "/user/logout"; 
 	}
 	
-	// 페이지 이동
+	/* 페이지 이동 */
 	function go_page(ref){
 		if(ref==1)	location.href = url + "user/login";					// 로그인 페이지 
 		else 		location.href = url + "user/myPage?id=" + currentid	// 마이 페이지 
 	}
  
-    //검색 페이지 이동
+	/* 게시물 검색 */
     function searchBtn(){ 
 	
     	var sendData  = {};
@@ -96,129 +96,46 @@ th, td {
 		      method: "POST",
 		      data: JSON.stringify(sendData), 
 		      dataType:  "json",
-		      async: true, // 비동기 설정
+		      async: true, 		// 비동기 설정
 		      contentType: "application/json",   
 		      success: function(res) {
-					var resultList = res; 	 
+					var resultList = res; 	  
+		    	  	
+					var searchList = $("#searchList");
+				    searchList.empty();
 
-					alert(resultList[0].writer);
-					    
-
-					    var searchList = $("#searchList");
-					    searchList.empty();
+					alert('검색 후, 리스트 첫번째의 작성자 이름 : ' + resultList[0].writer);
+					alert('검색 후, 리스트 길이 : ' + resultList.length);
 
 					    if (resultList.length > 0) {
-					        for (var i = 0; i < resultList.length; i++) {
-					            var board = resultList[i];
+					    	  for (var i = 0; i < resultList.length; i++) {
+						            var board = resultList[i];
+						            var html = "";
 
-					            var tr = $("<tr>").css("color", "#ff52a0");
-					            tr.append($("<td>").text(board.id));
+						            html += '<tr style="color: #ff52a0;">';
+						            html += '<td>' + board.id + '</td>';
+						            html += '<td>';
+						            if (board.dep > 1) {
+						                for (var j = 2; j <= board.dep; j++) {
+						                    html += '&nbsp;&nbsp;';
+						                }
+						                html += '<img src="/image/icon2.png" style="height:20px; width:20px;" />';
+						                html += '<b><span style="color: #ff52a0;">답글 :</span></b>';
+						            }
 
-					            var td = $("<td>");
+						            html += '<a style="margin-top: 0; height: 40px; color: orange;" href="/board/detail?id=' + board.id + '">' + board.title + '</a>';
+						            html += '</td>';
+						            html += '<td>' + board.writer + '</td>';
+						            html += '<td>' + board.regdate + '</td>';
+						            html += '<td>' + board.viewCnt + '</td>';
+						            html += '</tr>';
 
-					            if (board.dep > 1) {
-					                for (var j = 2; j <= board.dep; j++) {
-					                    td.append("&nbsp;&nbsp;");
-					                }
-					                td.append($("<img>").attr("src", "/image/icon2.png").css({"height": "20px", "width": "20px"}));
-					                td.append($("<b>").append($("<span>").css("color", "#ff52a0").text("답글 :")));
-					            }
-
-					            var a = $("<a>").css({"margin-top": "0", "height": "40px", "color": "orange"})
-					                            .attr("href", "/board/detail?id=" + board.id)
-					                            .text(board.title);
-					            td.append(a);
-
-					            tr.append(td);
-					            tr.append($("<td>").text(board.writer));
-					            tr.append($("<td>").text(board.regdate));
-					            tr.append($("<td>").text(board.viewCnt));
-
-					            searchList.append(tr);
-					        }
+						            $("tbody #searchList").append(html);
 					    }
-					   /*
-					    if (resultList.length > 0) {
-					        for (var i = 0; i < resultList.length; i++) {
-					            var board = resultList[i];
-					            var html = "";
-
-					            html += '<tr style="color: #ff52a0;">';
-					            html += '<td>' + board.id + '</td>';
-					            html += '<td>';
-					            if (board.dep > 1) {
-					                for (var j = 2; j <= board.dep; j++) {
-					                    html += '&nbsp;&nbsp;';
-					                }
-					                html += '<img src="/image/icon2.png" style="height:20px; width:20px;" />';
-					                html += '<b><span style="color: #ff52a0;">답글 :</span></b>';
-					            }
-
-					            html += '<a style="margin-top: 0; height: 40px; color: orange;" href="/board/detail?id=' + board.id + '">' + board.title + '</a>';
-					            html += '</td>';
-					            html += '<td>' + board.writer + '</td>';
-					            html += '<td>' + board.regdate + '</td>';
-					            html += '<td>' + board.viewCnt + '</td>';
-					            html += '</tr>';
-
-					            $("tbody #searchList").append(html);
-					        }
-
-					        
-					        
-					        
-					    }
-		      
-					
-					*/
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					/*
-					if(resultList.length > 0){
-						for (var i = 0; i < resultList.length; i++) {
-						    var board = resultList[i];
-							var html = ""; 
-		
-						    html += '<tr style="color: #ff52a0;">';
-						    html += '<td>' + board.id + '</td>';
-						    html += '<td>';
-						    if (board.dep > 1) {
-						        for (var j = 2; j <= board.dep; j++) {
-						            html += '&nbsp;&nbsp;';
-						        }
-						        html += '<img src="/image/icon2.png" style="height:20px; width:20px;" />';
-						        html += '<b><span style="color: #ff52a0;">답글 :</span></b>';
-						    }
-	
-						    html += '<a style="margin-top: 0; height: 40px; color: orange;" href="/board/detail?id=' + board.id + '">' + board.title + '</a>';
-						    html += '</td>';
-						    html += '<td>' + board.writer + '</td>';
-						    html += '<td>' + board.regdate + '</td>';
-						    html += '<td>' + board.viewCnt + '</td>';
-						    html += '</tr>';
-						    
-							$("tbody #searchList").append(html);  
-
-						} 
-					} 
-				*/	
+				}
 		      }, 
 		      error: function(xhr, status, error) {
-					alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+					alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.'); 
 		      }
 		});
 	  	 
@@ -234,13 +151,10 @@ th, td {
    		}
    		
    	} 
-   
-    
-    
-    
-    
-</script> <!-------------- 게시물이 없을경우 show 처리필요--------------------------------- -->
-<div class="container" ><!-- 게시물 리스트 시작  -->
+
+</script>
+
+<div class="container" >
 	<div height: 100px;">
 		<h2 class="page-header" align="left"> 자유 게시판 <span style="color: #ff52a0;">ZONE</span></h2><br>
         <div class="login-box well">

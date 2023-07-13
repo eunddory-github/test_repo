@@ -42,4 +42,7 @@ public interface boardMapper {
 	
 	// 내 게시글만 가져오기
 	List<Board> myboard(String user_fk);
+	
+	// 마이페이지 - 내 게시글 - 체크한 게시글 삭제	(동적쿼리 반복문 사용)
+	int deleteMultiBoard(List<Integer> list);
 }

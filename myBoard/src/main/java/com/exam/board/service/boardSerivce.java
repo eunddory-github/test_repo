@@ -1,7 +1,6 @@
 package com.exam.board.service;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.exam.board.entity.Board;
@@ -33,39 +31,38 @@ import com.exam.page.entity.criteria;
  * 	4. 영속성 : 성공적으로 처리될 시, 결과가 항상 저장되어야 함
  * 
  * 	메소드 실행 시 스프링의 PlatformTransactionManager 인터페이스를 사용하여 트랜잭션을 시작, 정상 여부에 따라 Commit/Rollback 동작을 수행
+ * 	@Transactional 선언적 트랜잭션. (runtimeException 또는 error 발생 시, rollBack 처리)
  */
 
-@Transactional	// 선언적 트랜잭션. (runtimeException 또는 error 발생 시, rollBack 처리)
+@Transactional	
 @Service
-public class boardSerivce implements boardSVCinterface {
+public class boardSerivce{
 
 	
-	//private final Logger logging = (Logger)LoggerFactory.getLogger(this.getClass());
+	// private final Logger logging = (Logger)LoggerFactory.getLogger(this.getClass());
 	
-	@Autowired
+	@Autowired  
 	private boardMapper mapper;
 	
 	/* 게시글 목록 */
-	@Override 
+	 
 	public List<Board> getAllList(criteria cri) {
 		System.out.println(TransactionSynchronizationManager.getCurrentTransactionName());
 		return mapper.getAllList(cri);
 	}
 	
 	/* 상세조회 */
-	@Override
 	public Board detailBoard(int id) {
+		System.out.println(TransactionSynchronizationManager.getCurrentTransactionName());
 		return mapper.detailBoard(id);
 	}
-
+ 
 	/* 게시글 삭제 */
-	@Override
 	public int deleteBoard(int id) {		
 		return mapper.deleteBoard(id);
 	}
 	
 	/* 신규 게시글 등록 */
-	@Override
 	public int insertPost(Board board, HttpServletRequest request, MultipartFile uploardFile){
 		
 		// 로그인 시 생성한 세션 key == 로그인한 user 의 id 값과 동일
@@ -80,9 +77,8 @@ public class boardSerivce implements boardSVCinterface {
 		setBoard.setUser_fk(user_fk);
 		
 		if(uploardFile != null) {
-			uploadFile(uploardFile); // 파일 저장 및 파일정보 반환
-			
-			Map<String, Object> filekey = uploadFile(uploardFile);
+			System.out.println(TransactionSynchronizationManager.getCurrentTransactionName());			
+			Map<String, Object> filekey = uploadFile(uploardFile); // 파일 저장 및 파일정보 반환
 
 			setBoard.setOrigin_name((String)filekey.get("originName"));
 			setBoard.setFilename((String)filekey.get("fileName"));
@@ -96,7 +92,6 @@ public class boardSerivce implements boardSVCinterface {
 	
 	
 	/* 게시글 수정  */
-	@Override
 	public int editPost(Board board, MultipartFile uploadFile) {
 		
 		int result = 0;
@@ -106,20 +101,20 @@ public class boardSerivce implements boardSVCinterface {
 		board.setFilename((String)filekey.get("fileName"));
 		board.setOrigin_name((String)filekey.get("originName"));
 		board.setFilepath("/files/" + (String)filekey.get("fileName"));
-		
+		System.out.println(TransactionSynchronizationManager.getCurrentTransactionName());
+
 		result = mapper.editPost(board);
 		
 		return result;
 	}
 	
 	/* 답글 등록 시, 부모글의 그룹 내 순서 증가 선처리 */
-	@Override
 	public int replyInsert_1(Board board) {
+		System.out.println(TransactionSynchronizationManager.getCurrentTransactionName());
 		return mapper.replyInsert_1(board);
 	}
 	
 	/* 답글 등록  */
-	@Override
 	public int replyInsert_2(Board board, HttpServletRequest request, MultipartFile uploadFile) {
 		HttpSession session = request.getSession();
 		String user_fk = (String)session.getAttribute("loginUser");
@@ -135,32 +130,35 @@ public class boardSerivce implements boardSVCinterface {
 		// 원글의 같은 그룹 내, grp_ord 보다 더 큰 값이 있으면  + 처리 
 		replyInsert_1(p_board);	
 		
-		if(uploadFile != null) {
+		if(uploadFile != null) { 
 			Map<String, Object> filekey = uploadFile(uploadFile);	// 파일 업로드
-			
-			p_board.setOrigin_name((String)filekey.get("originName"));
+			 
+			p_board.setOrigin_name((String)filekey.get("originName")); 
 			p_board.setFilename((String)filekey.get("fileName"));
-			p_board.setFilepath("/files/" + (String)filekey.get("fileName")); // static 아래 부분 파일 경로만으로 접근가능, 업로드 처리 종료
-		}
+			p_board.setFilepath("/files/" + (String)filekey.get("fileName")); 
+		} 
+		p_board.setFilename(null);
+		p_board.setFilepath(null); 
+		p_board.setOrigin_name(null);   
+
 		result = mapper.replyInsert_2(p_board); // 등록
 
-		return result;
+		return result;  
 	};
 	
 	/* 총 게시물 수 */
-	@Override
 	public int totalCnt() {
+		System.out.println(TransactionSynchronizationManager.getCurrentTransactionName());
 		return mapper.totalCnt();
 	}
 	
 	/* 게시글 검색 */
-	@Override
 	public List<Board> searchBoard(String searchType, String keyword) {
+		System.out.println(TransactionSynchronizationManager.getCurrentTransactionName());
 		return mapper.searchBoard(searchType, keyword);
 	} 
 	
 	/* 게시글 조회 수 증가처리  */
-	@Override
 	public void add_viewCnt(int id, HttpServletRequest request, HttpServletResponse response ) {
 			
 		 // 새로고침 조회 수 증가 방지
@@ -180,17 +178,16 @@ public class boardSerivce implements boardSVCinterface {
 	            response.addCookie(newCookie);
 	            mapper.add_viewCnt(id); 
 	        }
-	        mapper.add_viewCnt(id);
 	} 
 
 	/* 마이페이지 - 내가 쓴 게시글 목록  */
-	@Override
 	public List<Board> myboard(String user_fk) {
+		System.out.println(TransactionSynchronizationManager.getCurrentTransactionName());
 		return mapper.myboard(user_fk);
 	}
-	 
+	
+	  
 	/* file 저장 및 파일 정보반환  */
-	@Override
 	public Map<String, Object> uploadFile(MultipartFile uploadFile) {
 		
 		/* filePath = "classpath:static/files";  파일이 저장될 폴더 상대경로
@@ -217,18 +214,22 @@ public class boardSerivce implements boardSVCinterface {
                 e.getStackTrace();
             }
         }
-        
 		try {
 			File saveFile = new File(filePath, fileName);
 			uploadFile.transferTo(saveFile); // 파일저장
 
 		}catch(Exception e) {
 			e.printStackTrace();
-			
 		}
 		return filekey;
 	 }
 
+	
+	/* 마이페이지 - 내 게시글 - 체크한 게시글 삭제 */
+	public int deleteMultiBoard(List<Integer> list) {
+		return mapper.deleteMultiBoard(list);
+	}
+	
 }
 	
 	

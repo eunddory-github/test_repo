@@ -361,10 +361,10 @@ label.error{
 	}
 	
 	// 내게시글  - 체크한 글 삭제
-	function chkDel_board(){
+	function chkDel_board(){ 
 		
 		var len = $("#postdiv input[type=checkbox]:checked").length;
-		var chkRow = ""; 	// 삭제할 board id
+		var chkArr = []; 	// 삭제할 board id arr
 	
 		if(len ==0){
 			alert("선택된 글이 없습니다.");
@@ -374,24 +374,25 @@ label.error{
 			return;
 		}
 		$("#postdiv input[type=checkbox]:checked").each(function(){
-			 chkRow = chkRow + $(this).val() + ",";
+			chkArr.push($(this).val()); 
 		});
-		 chkRow =  chkRow.substring(0 , chkRow.lastIndexOf( ",")); // 맨끝 콤마 지움
-
-		$.ajax({
+		// chkRow =  chkRow.substring(0 , chkRow.lastIndexOf( ",")); // 맨끝 콤마 지움
+		alert('보낼 Arr data : ' + chkArr);
+		$.ajax({ 
 		      url: "/board/delChkPost",
-		      method: "POST",
-		      data: chkRow,
-		      success: function(res) { 
+		      method: "POST", 
+		      data: JSON.stringify(chkArr),
+		      contentType: "application/json", 
+		      success: function(res) {  
 					if(res ==  0){
-						alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요. ');
+						alert("1111111111111111");
 					}else{  
 						 alert('모두 삭제 완료 되었습니다.'); 
 						 location.href = "/user/myPage?id=" +$("#hd_id").val();
 						 $("#myBoard").trigger('click'); 
 					} 
 					 
-		      },
+		      }, 
 		      error: function(xhr, status, error) {
 					alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
 		      }

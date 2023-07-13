@@ -1,46 +1,26 @@
 package com.exam.board.controller;
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.lang.ProcessBuilder.Redirect;
-import java.net.URLDecoder;
-import java.net.http.HttpRequest;
-import java.util.HashMap;
+
+
+
+import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.ibatis.annotations.Param;
-import org.apache.logging.log4j.Logger;
-import org.hibernate.annotations.Loader;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.internal.build.AllowSysOut;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.exam.board.entity.Board; 
@@ -54,9 +34,11 @@ import com.exam.user.service.userSerivce;
 @RestController
 public class boardController {
 		 
-	 //private static final Logger logger = (Logger) LoggerFactory.getLogger(boardController.class);
+	//private static final String HttpServletResponse = null;
+
+	//private static final Logger logger = (Logger) LoggerFactory.getLogger(boardController.class);
 	
-	@Autowired
+	@Autowired 
 	private boardSerivce service;
 
 	@Autowired  
@@ -92,15 +74,12 @@ public class boardController {
 	@PostMapping("/saveBoard") 
 	public int saveBoard(@ModelAttribute Board board, HttpServletRequest request
 							, MultipartFile uploadFile) throws Exception {
-		int result = 0;
 		try {
-			result = service.insertPost(board, request, uploadFile);
-			return result;
+			return service.insertPost(board, request, uploadFile);
 		}catch (Exception e) {
 			e.printStackTrace();
-			// 에러페이지 이동 
+			throw new Exception("Error"); // exception 던져주고,  errorHandler controller 로 
 		}
-		return result;
 	}
 
 	/*****************************************
@@ -109,17 +88,13 @@ public class boardController {
 	@PostMapping("/reply")
 	public int reply(@ModelAttribute Board board, HttpServletRequest request, MultipartFile uploadFile)throws Exception {
 	
-		int result = 0;
-		try{
-			result = service.replyInsert_2(board, request,uploadFile);	
-			if(result > 0 ) {
-				result = 1;
-			}
+		  
+		try{	
+			return service.replyInsert_2(board, request,uploadFile);
 		}catch (Exception e) {
 			e.printStackTrace(); 
-        	throw new RuntimeException("답글 등록에 실패했습니다.");
+        	throw new Exception("Error");
 		}
-		return result;
 	} 
 	
 	/**************************************
@@ -187,19 +162,14 @@ public class boardController {
 	 * 게시글 수정
 	 *****************************************/
 	@PostMapping("/edit")
-	public int edit(@ModelAttribute Board board, MultipartFile uploadFile) {
+	public int edit(@ModelAttribute Board board, MultipartFile uploadFile) throws Exception {
 	
-		int result = 0;
 	        try { 
-	            result = service.editPost(board, uploadFile);
-	            if(result > 0) {
-	            	result = 1; 
-	            }
+	            return service.editPost(board, uploadFile);
 	        } catch (Exception e) {
 	            e.printStackTrace();
-	            throw new RuntimeException("게시글 수정에 실패했습니다.");
+	            throw new Exception("Error");
 	        }
-	    return result;
 	} 
 	
 
@@ -208,52 +178,46 @@ public class boardController {
 	 *****************************************/
 	  
 	@PostMapping(value= {"/searchList"}, produces = {"application/json"})
-	public List<Board> searchBoard(@RequestBody Map<String, Object> searchData
-			){
+	public List<Board> searchBoard(@RequestBody Map<String, Object> searchData){
 		
 		// @RequestParam(value = "searchType", required = false, defaultValue = "title") String searchType,
 	    // @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword) {
 		
-		 String keyword = (String)searchData.get("keyword"); 
-		 String searchType = (String)searchData.get("searchType");
-
-		System.out.println("keyword :" + keyword);
-		System.out.println("searchType :" + searchType);
+		String keyword = (String)searchData.get("keyword"); 
+		String searchType = (String)searchData.get("searchType");
 
 		List<Board> shcList = service.searchBoard(searchType, keyword);
-		
-		System.out.println("검색된 결과 list :" + shcList.toString());
-		System.out.println("검색된 결과 list 길이:" + shcList.size());
-		 
-		
-		
 	    return shcList;
 
 	}
 	
-	/*****************************************
-	 * 마이페이지 - 내 게시글  - 체크한 글 삭제
+	/***************************************** 
+	 * 마이페이지 - 내 게시글 - 체크한 글 삭제
 	 *****************************************/
-	@PostMapping("/delChkPost")
-	public int delChkPost(@RequestBody String idx) {
-
-		int result = 0;	
-		String post_idx = idx.replaceAll("=", ""); 
+	@PostMapping("/delChkPost") 
+	public int delChkPost(@RequestBody List<String> IdxList )throws Exception {
+		  
+		List<Integer> list = new ArrayList<>();
+		
+		for(int i=0; i < IdxList.size(); i++) {
+			list.add(Integer.parseInt(IdxList.get(i))); 
+		}
+		System.out.println("최종  list" + list.toString());
+		 
 		try {
-		      String[] arrIdx = post_idx.toString().split(",");
-		      for (int i = 0; i < arrIdx.length; i++) {
-			    service.deleteBoard(Integer.parseInt(arrIdx[i]));
-		      }
-			result = 1; 
-		}catch (Exception e) { 
-			e.printStackTrace();  
-		} 
-		return result;
+			int result = service.deleteMultiBoard(list);
+			return  result; 
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("Error occurred while deleting.");
+		}
+				
+				
 	}  
 
 		
 	/*****************************************
-	 * 검색결과 페이지  
+	 * 게시판 조회 수 통계표   
 	 *****************************************/
 	@RequestMapping("/chrtJS")
 	public ModelAndView chrtJSpage() {
