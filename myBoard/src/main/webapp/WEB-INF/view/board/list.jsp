@@ -79,13 +79,12 @@ th, td {
 	
 	/* 페이지 이동 */
 	function go_page(ref){
-		if(ref==1)	location.href = url + "user/login";					// 로그인 페이지 
-		else 		location.href = url + "user/myPage?id=" + currentid	// 마이 페이지 
+		if(ref==1)	location.href = url + "user/login";						// 로그인 페이지 
+		else 		location.href = url + "user/myPage?id=" + currentid		// 마이 페이지 
 	}
  
-	/* 게시물 검색 */
+	/* 게시물 검색(제목/작성자/내용) */
     function searchBtn(){ 
-	
     	var sendData  = {};
     	sendData.searchType = $("select[name='searchType']").val();	
     	sendData.keyword 	= $("#keyword").val().trim();
@@ -111,7 +110,7 @@ th, td {
 					    	  for (var i = 0; i < resultList.length; i++) {
 						            var board = resultList[i];
 						            var html = "";
-
+ 
 						            html += '<tr style="color: #ff52a0;">';
 						            html += '<td>' + board.id + '</td>';
 						            html += '<td>';
@@ -130,7 +129,7 @@ th, td {
 						            html += '<td>' + board.viewCnt + '</td>';
 						            html += '</tr>';
 
-						            $("tbody #searchList").append(html);
+						            searchList.append(html); 
 					    }
 				}
 		      }, 

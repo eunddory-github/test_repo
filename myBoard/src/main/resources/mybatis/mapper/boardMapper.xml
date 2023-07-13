@@ -245,7 +245,7 @@
            	user_fk,
             DATE_FORMAT(regdate, '%Y-%m-%d %H:%i:%s') AS regdate
   
-	  FROM  
+	  FROM   
 	  		testBoard
   	 WHERE 
   	 		user_fk = #{user_fk}

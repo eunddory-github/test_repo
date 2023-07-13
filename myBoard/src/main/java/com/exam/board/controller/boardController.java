@@ -176,7 +176,6 @@ public class boardController {
 	/*****************************************
 	 * 검색기능 (제목/내용/작성자)  
 	 *****************************************/
-	  
 	@PostMapping(value= {"/searchList"}, produces = {"application/json"})
 	public List<Board> searchBoard(@RequestBody Map<String, Object> searchData){
 		
