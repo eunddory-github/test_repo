@@ -15,6 +15,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script> <!--  차트js --> 
 
+
 <title>내 정보</title>
 <style>
 input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button
@@ -68,6 +69,7 @@ label.error{
 		 $("#myUserDiv").hide();
 		 $("#pwDiv").hide();
 		 $("#boardDiv").hide();
+		 $("#chrtDiv").hide();
 		 ChangeUi();
 	  });
 
@@ -77,6 +79,7 @@ label.error{
 		 $("#delUserDiv").hide(); 
 		 $("#pwDiv").hide();
 		 $("#boardDiv").hide();
+		 $("#chrtDiv").hide();
 		 ChangeUi();
 	  });
 	  
@@ -86,7 +89,7 @@ label.error{
 		 $("#myUserDiv").hide();
 		 $("#delUserDiv").hide(); 
 		 $("#boardDiv").hide();
-
+		 $("#chrtDiv").hide();
 		 ChangeUi();
 	  });
 	// 내 게시글 관리 탭
@@ -94,12 +97,22 @@ label.error{
 		$("#boardDiv").show();
 		$("#pwDiv").hide();
 		$("#myUserDiv").hide(); 
-		$("#delUserDiv").hide(); 
-		
+		$("#delUserDiv").hide();
+		$("#chrtDiv").hide();
 		ChangeUi();
 	
 	});
-
+	// 차트js 탭
+	$("#chrtJS").click(function(){
+		 
+		$("#chrtDiv").show();
+		$("#boardDiv").hide();
+		$("#pwDiv").hide();
+		$("#myUserDiv").hide(); 
+		$("#delUserDiv").hide();
+		ChangeUi();
+	
+	});
 
 	// 내 게시글 전체선택 및 해지
  	  $("#allChkBtn").click(function() {
@@ -116,8 +129,70 @@ label.error{
  		    	  $(this).prop("checked", true);
  		      })
  		    }
- 	 });	
-});
+ 	 });
+	
+	// 통계표 - 일자별 등록한 게시글 수 
+	var today = new Date();
+	var year = today.getFullYear();  	// 년
+	var month = today.getMonth() + 1;   // 월 
+	var day = today.getDate(); 			// 일
+	
+	month = month < 10 ? '0'+month : month;
+	day = day < 10 ? '0'+day : day;
+
+	var fmt_date = year + "년 " + month + "월 " + day + "일";
+	$("#todayTxt").text('Today : ' + fmt_date);	 // 오늘 날짜
+
+	var labelData = [];
+	for(var i=0; i < 5; i++){ 
+		labelData.push(month + "월 " + ((day - 4)+ i) + "일");   
+	}
+	
+	// var cntList = $("#day_list").val();		// 일자별 등록한 게시물 수  list
+	var  cntList = [];
+	cntList.push($("#day_m4").val());
+	cntList.push($("#day_m3").val());
+	cntList.push($("#day_m2").val());
+	cntList.push($("#day_m1").val());
+	cntList.push($("#day_m0").val());
+
+	// 그래프 data
+	var viewsData =  {
+		            labels: labelData, 									// 날짜 배열
+		            datasets: [{  
+		                label: '일자별 등록글 수 ',  
+		                data: cntList,  								// 데이터 배열
+		                backgroundColor: 'rgba(255, 99, 132, 0.2)',  	// 막대 색상
+		                borderColor: 'rgba(255, 99, 132, 1)',  			// 막대 테두리 색상
+		                borderWidth: 1  								// 막대 테두리 두께
+		            }]  
+	 }
+	
+    // 그래프 생성
+	var ctx = $('#myChart')[0].getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',  // 차트 유형 (막대 차트, 선 그래프, 원형 차트 등)
+        data: viewsData,
+        options: {		// 추가적인 설정 옵션
+        	 responsive: true,
+             scales: {
+                 x: {
+                     title: {
+                         display: true,
+                         text: '날짜'  	// x축 레이블
+                     }
+                 },
+                 y: { 
+                     title: {
+                         display: true,
+                         text: '조회 수'  // y축 레이블
+                     }
+                 }
+             }
+        }
+    }); 
+	
+});  /*********************** document.ready end *************************/ 
  	
  	
  	function ChangeUi(){
@@ -384,21 +459,18 @@ label.error{
 		      data: JSON.stringify(chkArr),
 		      contentType: "application/json", 
 		      success: function(res) {  
-					if(res ==  0){
-						alert("1111111111111111");
-					}else{  
-						 alert('모두 삭제 완료 되었습니다.'); 
-						 location.href = "/user/myPage?id=" +$("#hd_id").val();
-						 $("#myBoard").trigger('click'); 
-					} 
-					 
+						var result = res;
+						if(result > 0){
+							 alert('모두 삭제 완료 되었습니다.'); 
+							 location.href = "/user/myPage?id=" + $("#hd_id").val();
+							 $("#myBoard").trigger('click'); 
+						}	 
 		      }, 
 		      error: function(xhr, status, error) {
 					alert('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
 		      }
 		});	
 	}
-	
 
 </script>
 <!-- 네비게이션 -->
@@ -415,6 +487,9 @@ label.error{
   <li class="nav-item">
     <a class="nav-link" href="#" id="myBoard" >내 게시글</a>
   </li>
+    <li class="nav-item">
+    <a class="nav-link" href="#" id="chrtJS" >통계표</a>
+  </li> 
 
 </ul>
 <!-- 네비게이션 end -->
@@ -623,6 +698,19 @@ label.error{
            <hr class="mb-4">
            <button class="btn btn-success btn-lg btn-block" onclick= "changePW();" >변경하기</button>
 	 </div> 
-	 
+	 <div  id="chrtDiv" style="display: none;"> 	<!------------- 차트 js Tap  ----------------->
+	 	<!-- 일자별 등록글 수 data -->
+	 		<input type="hidden" id="day_list" value="${regCntList}" />
+		 	<input type="hidden" id="day_m4" value="${regCntList[0]}" />
+		 	<input type="hidden" id="day_m3" value="${regCntList[1]}" />
+		 	<input type="hidden" id="day_m2" value="${regCntList[2]}" />
+		 	<input type="hidden" id="day_m1" value="${regCntList[3]}" />
+		 	<input type="hidden" id="day_m0" value="${regCntList[4]}" />
+	 	<!-- 일자별 등록글 수 data 끝  -->
+       <h1>최근 5일동안 등록한 게시글 수</h1> 
+       <h3 id="todayTxt"></h3>
+       <canvas id="myChart"></canvas>
+       <button class="btn btn-success btn-lg btn-block" onclick= "location.href='/'" >메인으로</button> 
+	 </div>  
 </div>
 </div>

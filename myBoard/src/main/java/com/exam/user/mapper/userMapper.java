@@ -22,8 +22,12 @@ public interface userMapper {
 	
 	// 회원정보 삭제
 	int deleteUser(String id);
-	
-	// 비밀번호 변경
+	 
+	/** 비밀번호 변경
+	 * @param id	: user_fk(유저id)
+	 * @param newpw	: 변경할 비밀번호 
+	 **/
 	int changePW(@Param("id") String id, @Param("PassWord") String newpw);
+	
 }
  

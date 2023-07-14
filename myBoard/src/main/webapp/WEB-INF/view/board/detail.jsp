@@ -99,7 +99,7 @@
 		}else if(ref == 'edit'){
 			location.href = "/board/editpage?id="+id;
 		}else{
-			location.href = "/board/list";
+			location.href = "/";
 		}
 	}
 	
@@ -161,7 +161,7 @@
 					var result = res;
 					if(result > 0){
 						alert("답글 등록완료!");
-						location.href = "/board/list";
+						location.href = "/";
 					}
 		      }, 
 		      error: function(xhr, status, error) {
@@ -233,7 +233,7 @@
                           <!-- (board 작성한 userid == loginid 경우만 버튼보임)-->
                           </span>
                        </td>
-                    </tr>
+                    </tr>  
               	</thead>
            </table>
 		</div>

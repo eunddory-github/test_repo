@@ -182,17 +182,12 @@
 <!-- 게시글 삭제 (자식글까지 모두 삭제) -->
 <delete id="deleteBoard" parameterType="integer">
 	 <![CDATA[
-	DELETE FROM 
-				testBoard
-		  WHERE 
-		  		id IN
-		 			 ( SELECT * FROM 
-		  					( SELECT id FROM 
-		  									testBoard
-									    WHERE 
-											grp_no = #{id}
-							) AS grp_no
-					  );
+	DELETE FROM testBoard
+     WHERE id IN ( SELECT * FROM 
+						( SELECT id FROM testBoard
+		    			   WHERE grp_no = #{id}
+						 ) AS grp_no
+	);
 	]]> 
 </delete>
 
@@ -222,12 +217,9 @@
 <!-- 게시글 조회 수 증가 -->
 <update id="add_viewCnt" parameterType="Integer">
 	<![CDATA[
-	UPDATE 
-		testBoard 
-	   SET
-		viewCnt = viewCnt + 1 
-	 WHERE 
-		id = #{id}
+	UPDATE testBoard 
+	   SET viewCnt = viewCnt + 1 
+	 WHERE id = #{id}
 	]]> 
 </update>
 
@@ -245,12 +237,9 @@
            	user_fk,
             DATE_FORMAT(regdate, '%Y-%m-%d %H:%i:%s') AS regdate
   
-	  FROM   
-	  		testBoard
-  	 WHERE 
-  	 		user_fk = #{user_fk}
-  ORDER BY
-  		 	regdate DESC;
+	  FROM  testBoard
+  	 WHERE  user_fk = #{user_fk}
+  ORDER BY  regdate DESC;
 		
 </select>
 
@@ -258,12 +247,26 @@
 <!-- 마이페이지 > 내 게시글 > 체크한 글 삭제 -->
 <delete id="deleteMultiBoard" parameterType="hashmap">
     DELETE FROM testBoard
-     WHERE id IN 
-			    <foreach item="id" collection="list" open="(" separator="," close=")">
+     WHERE id IN  <foreach item="id" collection="list" open="(" separator="," close=")">
 			        #{id, jdbcType=INTEGER}
-			    </foreach>
+			     </foreach>
 			     
 </delete>
+ 
+<!-- 마이페이지 - 통계표 - 일자별 등록한 글의 수 -->
+<select id="regData" parameterType="hashmap" resultType="integer">
+SELECT COUNT(*) AS total_cnt
+  FROM (
+    	SELECT DATE(regdate) AS regdate 
+    	  FROM testBoard
+         WHERE user_fk = #{id} AND DATE(regdate) = #{date}
+      GROUP BY regdate
+		) AS a; 
+</select>
+
+
+ 
+
  
 </mapper>
 

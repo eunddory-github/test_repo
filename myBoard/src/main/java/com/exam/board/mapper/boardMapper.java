@@ -45,4 +45,10 @@ public interface boardMapper {
 	
 	// 마이페이지 - 내 게시글 - 체크한 게시글 삭제	(동적쿼리 반복문 사용)
 	int deleteMultiBoard(List<Integer> list);
+	
+	/** 마이페이지 - 통계표- 최근 5일 일자별 등록한 글 수 
+	 * @param id	: user_fk(유저id)
+	 * @param date	: 조회할 날짜 
+	 **/
+	int regData(@Param("id") String id, @Param("date") String date); 
 }

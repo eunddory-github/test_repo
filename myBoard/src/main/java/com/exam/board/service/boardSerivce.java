@@ -58,7 +58,8 @@ public class boardSerivce{
 	}
  
 	/* 게시글 삭제 */
-	public int deleteBoard(int id) {		
+	public int deleteBoard(int id) { 
+		System.out.println(TransactionSynchronizationManager.getCurrentTransactionName()); 
 		return mapper.deleteBoard(id);
 	}
 	
@@ -229,6 +230,8 @@ public class boardSerivce{
 	public int deleteMultiBoard(List<Integer> list) {
 		return mapper.deleteMultiBoard(list);
 	}
+	
+	/* 일자 별 나의 게시글 조회 수 data 가져오기 */
 	
 }
 	

@@ -33,8 +33,7 @@
 <select id="isMember" parameterType="hashmap" resultType="com.exam.user.entity.User">
 	SELECT * 
 	  FROM user
-	 WHERE 
-	    id = #{id}
+	 WHERE id = #{id}
 </select>
 
 <!-- 회원정보 수정  -->
@@ -45,10 +44,11 @@
 	   	   	  email = #{email},
 	   		 gender = #{gender},
 	    phoneNumber = #{phoneNumber}
-	 WHERE 
-	 	id =  #{id}
+	 WHERE id =  #{id}
 
 </update>
+
+<!--  회원탈퇴 -->
 <delete id="deleteUser" parameterType="hashmap">
 	
 	DELETE 
@@ -56,13 +56,13 @@
 	 WHERE id = #{id};
 
 </delete>
+
 <!--  비밀번호 변경 -->
 <update id="changePW" parameterType="hashmap" >
 	
 	UPDATE user 
 	   SET PassWord = #{PassWord}
-	 WHERE 
-	 	id =  #{id}
+	 WHERE id =  #{id}
 </update>
 
 

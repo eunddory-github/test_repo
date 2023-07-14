@@ -20,10 +20,10 @@ import com.exam.page.entity.pageVO;
 @Controller
 @SpringBootApplication
 public class MyBoardApplication {
-
+ 
 	@Autowired 
 	private boardSerivce service;
-	
+	 
 	@RequestMapping("/")
 	public String mainPage(criteria cri, Model model) {
 				
